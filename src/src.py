@@ -6,19 +6,8 @@ STEFAN_BOLTZMANN_CONSTANT = 5.670374419 * 1e-8
 
 class Material():
 
-    def __init__(self, name, density, thermal_conductivity, specific_heat_capacity, glass_transition, melt_transition,
-                 extrusion_temp):
-        """_summary_
-
-        Args:
-            name (_type_): _description_
-            density (_type_): _description_
-            thermal_conductivity (_type_): _description_
-            specific_heat_capacity (_type_): _description_
-            glass_transition (_type_): _description_
-            melt_transition (_type_): _description_
-            extrusion_temp (_type_): _description_
-        """
+    def __init__(self, name: str, density: float, thermal_conductivity: float, specific_heat_capacity: float,
+                 glass_transition: float, melt_transition: float, extrusion_temp: float):
         self.name: str = name
         self.density: float = density  # [kg/m3]
         self.thermal_conductivity: float = thermal_conductivity  # [W/m-K]
@@ -55,7 +44,7 @@ class Later():
         """
         self.width: float = width
         self.height: float = height
-        
+
     @property
     def area(self) -> float:
         """Approximate layer area. """
@@ -93,6 +82,7 @@ def inch_to_millimeter(arg: float, n: int = 1) -> float:
 def import_materials(fpath: str) -> dict[Material]:
 
     return []
+
 
 layer_count = 10
 
