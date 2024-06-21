@@ -118,7 +118,7 @@ function [Results] = LocalSolver(Extrudate,Base,Process,Simulation)
             ExplicitConvectionMatrix(index) = (Process.ConvectionCoefficient)/(Base.VolumetricHeatCapacity*Process.Slice.Height);
             Results.Temperature.All(1,index) = Process.Temperature.Envirionment;
             
-        elseif(index==Simulation.TotalNodes) % Base (last node)
+        elseif(index==Simulation.TotalNodes) % Base (last node) 
             
             ExplicitConductionMatrix(end-2:end,index)=Base.ThermalDiffusivity*[1 -2 1]/Simulation.NodeSpacing^2;            
             ExplicitConvectionMatrix(index) = (Process.ConvectionCoefficient)/(Base.VolumetricHeatCapacity*Process.Slice.Height);        
