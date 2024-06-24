@@ -1,5 +1,6 @@
 import json
 import math
+import numpy as np
 
 STEFAN_BOLTZMANN_CONSTANT = 5.670374419 * 1e-8
 
@@ -52,6 +53,18 @@ class Later():
 
 
 def calculate_interface_temperature(mat_1: Material, mat_2: Material, temp_1: float, temp_2: float) -> float:
+    """Calculate interface temperature between two semi-infinite bodies using 
+    thermal effusivity. 
+
+    Args:
+        mat_1 (Material): Body 1 material parameter object. 
+        mat_2 (Material): Body 2 material parameter object. 
+        temp_1 (float): Body 1 temperature at interface. 
+        temp_2 (float): Body 2 temperature at interface. 
+
+    Returns:
+        float: _description_
+    """
 
     num = mat_1.thermal_effusivity * temp_1 + mat_2.thermal_effusivity * temp_2
 
@@ -79,17 +92,18 @@ def inch_to_millimeter(arg: float, n: int = 1) -> float:
     return res
 
 
-def import_materials(fpath: str) -> dict[Material]:
+LAYER_CNT = 10
 
-    return []
+NODES_PER_LAYER_CNT = 10
 
 
-layer_count = 10
 
-nodes_per_layer = 10
+node_cnt = LAYER_CNT * NODES_PER_LAYER_CNT
 
-node_spacing = layer_count / nodes_per_layer
+node_spacing = LAYER_CNT / NODES_PER_LAYER_CNT
 
 time_spacing = 0
 
 mat = Material('tst', 1000, 0.200, 2000, 180, None, 300)
+
+ 
