@@ -83,6 +83,7 @@ class Material():
         """Thermal diffusivity [sq.m/s]."""
         return self.thermal_conductivity / self.volumetric_heat_capacity  # [m2/s]
 
+
 class Later():
 
     def __init__(self, width: float, height: float):
@@ -115,10 +116,10 @@ def calculate_interface_temperature(M1: Material, M2: Material, T1: float, T2: f
         float: Interface temperature [degC].
     """
 
-    if not isinstance(T1, float) or not isinstance(T2) != float:
+    if not isinstance(T1, (int,float)) or not isinstance(T2, (int,float)):
         raise TypeError('T1 and T2 must be type float.')
 
-    if not isinstance(M1,Material) or not isinstance(M2, Material):
+    if not isinstance(M1, Material) or not isinstance(M2, Material):
         raise TypeError('M1 and M2 must be type Material.')
 
     # Handle no temperature change case.
@@ -168,6 +169,9 @@ def inch_to_millimeter(f: float, n: int = 1) -> float:
     return res
 
 
+T_AMB = 200
+
+T_HOT = 400
 
 LAYER_CNT = 2
 
@@ -183,10 +187,10 @@ M1 = Material('tst', 1000, 0.200, 2000, 180, None, 300, 0.6)
 
 T = np.array([0] * node_cnt, dtype=FLOAT64)
 
-T[0:NODES_PER_LAYER_CNT - 1] = 1
+T[0:NODES_PER_LAYER_CNT - 1] = T_HOT
 
-T[NODES_PER_LAYER_CNT] = calculate_interface_temperature(M1,M1, 100,300)
+T[:] = T_AMB
 
-
+T[NODES_PER_LAYER_CNT] = calculate_interface_temperature(M1, M1, T_HOT, T_AMB)
 
 print(T)
