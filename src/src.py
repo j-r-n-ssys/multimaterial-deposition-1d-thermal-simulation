@@ -52,25 +52,31 @@ class Later():
         return self.width * self.height
 
 
-def calculate_interface_temperature(mat_1: Material, mat_2: Material, temp_1: float, temp_2: float) -> float:
+def calculate_interface_temperature(M1: Material, M2: Material, T1: float, T2: float) -> float:
     """Calculate interface temperature between two semi-infinite bodies using 
     thermal effusivity. 
 
     Args:
-        mat_1 (Material): Body 1 material parameter object. 
-        mat_2 (Material): Body 2 material parameter object. 
-        temp_1 (float): Body 1 temperature at interface. 
-        temp_2 (float): Body 2 temperature at interface. 
+        M1 (Material): Body 1 material parameter object. 
+        M2 (Material): Body 2 material parameter object. 
+        T1 (float): Body 1 temperature at interface [degC]. 
+        T2 (float): Body 2 temperature at interface [degC]. 
 
     Returns:
-        float: _description_
+        float: Interface temperature [degC].
     """
+    
+    e1 = M1.thermal_effusivity
+    
+    e2 = M2.thermal_effusivity
 
-    num = mat_1.thermal_effusivity * temp_1 + mat_2.thermal_effusivity * temp_2
+    num = (e1 * T1) + (e2 * T2)
 
-    den = mat_1.thermal_effusivity + mat_2.thermal_effusivity
+    den = e1 + e2
 
-    return num / den
+    Ti = num / den
+    
+    return Ti
 
 
 def inch_to_millimeter(arg: float, n: int = 1) -> float:
@@ -100,7 +106,9 @@ NODES_PER_LAYER_CNT = 10
 
 node_cnt = LAYER_CNT * NODES_PER_LAYER_CNT
 
-node_spacing = LAYER_CNT / NODES_PER_LAYER_CNT
+
+
+node_spacing = 0
 
 time_spacing = 0
 
