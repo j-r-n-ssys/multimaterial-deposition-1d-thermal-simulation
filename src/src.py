@@ -4,6 +4,8 @@ import numpy as np
 
 STEFAN_BOLTZMANN_CONSTANT = 5.670374419 * 1e-8
 
+FLOAT64 = np.float64
+
 
 class Material():
 
@@ -119,7 +121,7 @@ def inch_to_millimeter(f: float, n: int = 1) -> float:
     return res
 
 
-LAYER_CNT = 10
+LAYER_CNT = 2
 
 NODES_PER_LAYER_CNT = 10
 
@@ -130,3 +132,10 @@ node_spacing = 0
 time_spacing = 0
 
 mat = Material('tst', 1000, 0.200, 2000, 180, None, 300)
+
+
+T = np.array([0] * node_cnt, dtype = FLOAT64)
+
+T[0:NODES_PER_LAYER_CNT-1] = 1
+
+print(T)
