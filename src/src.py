@@ -65,27 +65,27 @@ def calculate_interface_temperature(M1: Material, M2: Material, T1: float, T2: f
     Returns:
         float: Interface temperature [degC].
     """
-    
+
     if isinstance(T1) != float or isinstance(T2) != float:
         raise TypeError('T1 and T2 must be type float.')
-    
+
     if isinstance(M1) != Material or isinstance(M2) != Material:
         raise TypeError('M1 and M2 must be type Material.')
-    
-    # Handle no temperature change case. 
+
+    # Handle no temperature change case.
     if T1 == T2:
         return T1
-        
-    # Store M1s effusivity. 
+
+    # Store M1s effusivity.
     e1 = M1.thermal_effusivity
-    
+
     if e1 == 0:
         raise ValueError('M1 effusivity is zero.')
-    
-    # Store M2s effusivity. 
+
+    # Store M2s effusivity.
     e2 = M2.thermal_effusivity
-    
-    if e2 == 0: 
+
+    if e2 == 0:
         raise ValueError('M2 effusivity is zero.')
 
     num = (e1 * T1) + (e2 * T2)
@@ -93,25 +93,28 @@ def calculate_interface_temperature(M1: Material, M2: Material, T1: float, T2: f
     den = e1 + e2
 
     Ti = num / den
-    
+
     return Ti
 
 
-def inch_to_millimeter(arg: float, n: int = 1) -> float:
-    """Convert an argument in inches to millimeters. This function accepts an 
-    optional argument `n`, which specifies the power. For example, a value of 
+def inch_to_millimeter(f: float, n: int = 1) -> float:
+    """Convert an argument `f` in inches to millimeters. This function accepts
+    an optional argument `n`, which specifies the power. For example, a value of 
     `n = 1` converts the argument from inches to millimeters. A value of `n = 3` 
     converts the argument from cubic inches to cubic millimeters. This function
     can also be used to do the reverse conversion, as, for example, `n = -1` 
     converts the argument from millimeteres to inches. """
 
-    if isinstance(arg) != int:
-        raise TypeError('arg must be type int.')
+    if isinstance(f) != float or isinstance(f) != int:
+        raise TypeError('Argument f must be of type int or float).')
 
-    if arg == 0:
-        raise ValueError('n = 0 will have no effect.')
+    if isinstance(n) != int:
+        raise TypeError('Argument n must be type int.')
 
-    res = arg * (25.4**n)
+    if f == 0:
+        raise ValueError('n = 0 has no effect.')
+
+    res = float(f) * (25.4**n)
 
     return res
 
@@ -120,16 +123,10 @@ LAYER_CNT = 10
 
 NODES_PER_LAYER_CNT = 10
 
-
-
 node_cnt = LAYER_CNT * NODES_PER_LAYER_CNT
-
-
 
 node_spacing = 0
 
 time_spacing = 0
 
 mat = Material('tst', 1000, 0.200, 2000, 180, None, 300)
-
- 
