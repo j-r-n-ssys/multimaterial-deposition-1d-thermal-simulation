@@ -182,8 +182,9 @@ def mk_conduction_matrix(M1: Material, M2: Material) -> np.ndarray:
 
         Ym2 = (3 * K1 + 2 * K2) * D2 - D1 * K2
 
-        fda = np.array([Yp2, Yp1, 0, Ym1, Ym2], dtype=FLOAT64) / (6 *
-                                                                  (K1 + K2) * dZ2)  # finite difference approximation
+        den = (6 * (K1 + K2) * dZ2)
+
+        fda = np.array([Yp2, Yp1, 0, Ym1, Ym2], dtype=FLOAT64) / den  # finite difference approximation
 
         return fda
 
