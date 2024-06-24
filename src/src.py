@@ -241,9 +241,7 @@ node_cnt = LAYER_CNT * (NODES_PER_LAYER_CNT - 1) + 1
 
 DELTA_Z = 0.001
 
-M1 = Material('tst', 1000, 0.200, 2000, 180, None, 300, 0.6)
-
-# M2 = Material('tst', 1000, 0.400, 2000, 180, None, 300, 0.6)
+M1 = Material('QSR', 1180, 0.1, 1950, 165, None, 295, None)
 
 T = np.array([T_AMB] * node_cnt, dtype=FLOAT64)
 
