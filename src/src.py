@@ -235,7 +235,7 @@ T_HOT = 400
 
 LAYER_CNT = 2
 
-NODES_PER_LAYER_CNT = 4
+NODES_PER_LAYER_CNT = 5
 
 node_cnt = LAYER_CNT * (NODES_PER_LAYER_CNT - 1) + 1
 
@@ -244,6 +244,8 @@ DELTA_Z = 0.001
 M1 = Material('QSR', 1180, 0.1, 1950, 165, None, 295, None)
 
 T = np.array([T_AMB] * node_cnt, dtype=FLOAT64)
+
+res = np.zeros(shape=[node_cnt, int(1e6)], dtype=FLOAT64)
 
 # Apply the hot temperature.
 T[0:NODES_PER_LAYER_CNT - 1] = T_HOT
