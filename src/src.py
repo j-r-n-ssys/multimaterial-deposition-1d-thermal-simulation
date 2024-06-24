@@ -2,23 +2,71 @@ import json
 import math
 import numpy as np
 
+from types import NoneType
+
 STEFAN_BOLTZMANN_CONSTANT = 5.670374419 * 1e-8
 
 FLOAT64 = np.float64
 
 
 class Material():
+    """This object represents a material."""
 
     def __init__(self, name: str, density: float, thermal_conductivity: float, specific_heat_capacity: float,
-                 glass_transition: float, melt_transition: float, extrusion_temp: float):
-        self.name: str = name
-        self.density: float = density  # [kg/m3]
-        self.thermal_conductivity: float = thermal_conductivity  # [W/m-K]
-        self.specific_heat_capacity: float = specific_heat_capacity
-        self.glass_transition: float = glass_transition  # [K]
-        self.melt_transition: (float | None) = melt_transition  # [K]
-        self.extrusion_temp: float = extrusion_temp  # [K]
-        self.emmisivity: float = 0  #[0.0-1.0]
+                 glass_transition: float, melt_transition: float, extrusion_temp: float, emissivity: float):
+        """Init."""
+
+        if not isinstance(name, str):
+            raise TypeError('Name must be a string.')
+
+        self.name = str(name)
+
+        if not isinstance(density, (int, float)):
+            raise TypeError('Density must be type float.')
+
+        if density < 0.0:
+            raise ValueError('Density must be greater than zero.')
+
+        self.density = float(density)  # [kg/m3]
+
+        if not isinstance(thermal_conductivity, (int, float)):
+            raise TypeError('Thermal conductivity must be type float.')
+
+        if thermal_conductivity < 0.0:
+            raise ValueError('Thermal conducitivty must be greater than zero.')
+
+        self.thermal_conductivity = float(thermal_conductivity)  # [W/m-K]
+
+        if not isinstance(specific_heat_capacity, (int, float)):
+            raise TypeError('Specific heat capacity must be type float.')
+
+        if specific_heat_capacity < 0.0:
+            raise ValueError('Specific heater capacity must be greater than zero.')
+
+        self.specific_heat_capacity = float(specific_heat_capacity)
+
+        if not isinstance(glass_transition, (int, float)):
+            raise TypeError('Glass transition temperature must be type float.')
+
+        self.glass_transition = float(glass_transition)  # [K]
+
+        if not isinstance(melt_transition, (NoneType, int, float)):
+            raise TypeError('Melt temperature must be type float.')
+
+        self.melt_transition = float(melt_transition) if not isinstance(melt_transition, NoneType) else None
+
+        if not isinstance(extrusion_temp, (int, float)):
+            raise TypeError('Extrusion temperature must be type float.')
+
+        self.extrusion_temp = float(extrusion_temp)  # [K]
+
+        if not isinstance(emissivity, (int, float)):
+            raise TypeError('Emissivity must be type float.')
+
+        if emissivity < 0.0 or emissivity > 1.0:
+            raise ValueError('Emissivity must be between 0 and 1.')
+
+        self.emmisivity: float = float(emissivity)  # [0.0-1.0]
 
     @property
     def volumetric_heat_capacity(self) -> float:
@@ -34,7 +82,6 @@ class Material():
     def thermal_diffusivity(self) -> float:
         """Thermal diffusivity [sq.m/s]."""
         return self.thermal_conductivity / self.volumetric_heat_capacity  # [m2/s]
-
 
 class Later():
 
@@ -131,11 +178,6 @@ node_spacing = 0
 
 time_spacing = 0
 
-mat = Material('tst', 1000, 0.200, 2000, 180, None, 300)
-
-
-T = np.array([0] * node_cnt, dtype = FLOAT64)
-
-T[0:NODES_PER_LAYER_CNT-1] = 1
+mat = Material('tst', 1000, 0.200, 2000, 180, None, 300, 0.6)
 
 print(T)
