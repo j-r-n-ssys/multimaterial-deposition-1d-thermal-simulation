@@ -169,9 +169,47 @@ def inch_to_millimeter(f: float, n: int = 1) -> float:
     return res
 
 
-def mk_conduction_matrix(M1:Material, M2:Material) -> np.ndarray:
+def mk_conduction_matrix(M1: Material, M2: Material) -> np.ndarray:
     """---IN DEVELOPMENT---"""
-    
+
+    dz = node_spacing
+
+    dz2 = dz**2
+
+    a1 = M1.thermal_diffusivity
+
+    a2 = M2.thermal_diffusivity
+
+    Z = np.zeros(shape=[node_cnt, node_cnt], dtype=FLOAT64)
+
+    for i in range(0, node_cnt):
+        match i:
+
+            case 0:
+                Z[i, i:i + 3] = (a1 / dz**2) * np.array([1, -2, 1], dtype=FLOAT64) # fwd
+
+            case i if (i > 0) & (i < NODES_PER_LAYER_CNT - 1):
+                print(i)
+                Z[i, i - 1:i + 2] = (a1 / dz**2) * np.array([1, -2, 1], dtype=FLOAT64)
+                
+            case i if i == NODES_PER_LAYER_CNT - 1:
+                pass
+                
+
+            case i if (i > NODES_PER_LAYER_CNT -1) & (i < node_cnt - 1):
+                print(i)
+                Z[i, i - 1:i + 2] = (a2 / dz**2) * np.array([1, -2, 1], dtype=FLOAT64)
+
+            case i if i == node_cnt - 1:
+
+                Z[i, i - 2:i +1] = (a2 / dz**2) * np.array([1, -2, 1], dtype=FLOAT64)
+                
+            # case _:
+            #     raise ValueError('Illegal index reached.')
+        print(i)
+
+    print(Z)
+
 
 T_AMB = 200
 
@@ -183,11 +221,13 @@ NODES_PER_LAYER_CNT = 4
 
 node_cnt = LAYER_CNT * (NODES_PER_LAYER_CNT - 1) + 1
 
-node_spacing = 0
+node_spacing = 0.001
 
 time_spacing = 0
 
 M1 = Material('tst', 1000, 0.200, 2000, 180, None, 300, 0.6)
+
+M2 = Material('tst', 1000, 0.400, 2000, 180, None, 300, 0.6)
 
 T = np.array([T_AMB] * node_cnt, dtype=FLOAT64)
 
@@ -195,6 +235,8 @@ T = np.array([T_AMB] * node_cnt, dtype=FLOAT64)
 T[0:NODES_PER_LAYER_CNT - 1] = T_HOT
 
 # Set the interface temperature
-T[NODES_PER_LAYER_CNT - 1] = calculate_interface_temperature(M1, M1, T_HOT, T_AMB)
+T[NODES_PER_LAYER_CNT - 1] = calculate_interface_temperature(M1, M2, T_HOT, T_AMB)
 
 print(T)
+
+mk_conduction_matrix(M1, M1)
