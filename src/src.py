@@ -222,8 +222,8 @@ def mk_conduction_matrix(M1: Material, M2: Material) -> np.ndarray:
 
                 Z[i, i - 2:i + 1] = (D2 / dZ2) * ARR  # bkwd
 
-            # case _:
-            #     raise ValueError('Illegal index reached.')
+            case _:
+                raise ValueError('Illegal index reached.')
         print(i)
 
     print(Z)
