@@ -116,7 +116,7 @@ def calculate_interface_temperature(M1: Material, M2: Material, T1: float, T2: f
         float: Interface temperature [degC].
     """
 
-    if not isinstance(T1, (int,float)) or not isinstance(T2, (int,float)):
+    if not isinstance(T1, (int, float)) or not isinstance(T2, (int, float)):
         raise TypeError('T1 and T2 must be type float.')
 
     if not isinstance(M1, Material) or not isinstance(M2, Material):
