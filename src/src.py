@@ -19,7 +19,7 @@ class Material():
         if not isinstance(name, str):
             raise TypeError('Name must be a string.')
 
-        self.name = str(name)
+        self.long_name = str(name)
 
         if not isinstance(density, (int, float)):
             raise TypeError('Density must be type float.')
@@ -186,24 +186,23 @@ def mk_conduction_matrix(M1: Material, M2: Material) -> np.ndarray:
         match i:
 
             case 0:
-                Z[i, i:i + 3] = (a1 / dz**2) * np.array([1, -2, 1], dtype=FLOAT64) # fwd
+                Z[i, i:i + 3] = (a1 / dz**2) * np.array([1, -2, 1], dtype=FLOAT64)  # fwd
 
             case i if (i > 0) & (i < NODES_PER_LAYER_CNT - 1):
                 print(i)
                 Z[i, i - 1:i + 2] = (a1 / dz**2) * np.array([1, -2, 1], dtype=FLOAT64)
-                
+
             case i if i == NODES_PER_LAYER_CNT - 1:
                 pass
-                
 
-            case i if (i > NODES_PER_LAYER_CNT -1) & (i < node_cnt - 1):
+            case i if (i > NODES_PER_LAYER_CNT - 1) & (i < node_cnt - 1):
                 print(i)
                 Z[i, i - 1:i + 2] = (a2 / dz**2) * np.array([1, -2, 1], dtype=FLOAT64)
 
             case i if i == node_cnt - 1:
 
-                Z[i, i - 2:i +1] = (a2 / dz**2) * np.array([1, -2, 1], dtype=FLOAT64)
-                
+                Z[i, i - 2:i + 1] = (a2 / dz**2) * np.array([1, -2, 1], dtype=FLOAT64)
+
             # case _:
             #     raise ValueError('Illegal index reached.')
         print(i)
