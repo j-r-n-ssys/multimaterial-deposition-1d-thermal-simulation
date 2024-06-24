@@ -172,36 +172,54 @@ def inch_to_millimeter(f: float, n: int = 1) -> float:
 def mk_conduction_matrix(M1: Material, M2: Material) -> np.ndarray:
     """---IN DEVELOPMENT---"""
 
-    dz = node_spacing
+    def mk_interface_kernal(D1, K1, D2, K2, dZ2):
 
-    dz2 = dz**2
+        Yp2 = (2 * K1 + 3 * K2) * D1 - D2 * K1
 
-    a1 = M1.thermal_diffusivity
+        Yp1 = 4 * D2 * K1 - 2 * (K1 + 3 * K2) * D1
 
-    a2 = M2.thermal_diffusivity
+        Ym1 = 4 * D1 * K2 - 2 * (3 * K1 + K2) * D2
+
+        Ym2 = (3 * K1 + 2 * K2) * D2 - D1 * K2
+
+        fda = np.array([Yp2, Yp1, 0, Ym1, Ym2], dtype=FLOAT64) / (6 *
+                                                                  (K1 + K2) * dZ2)  # finite difference approximation
+
+        return fda
+
+    dZ = DELTA_Z
+
+    dZ2 = dZ**2
+
+    D1 = M1.thermal_diffusivity
+
+    K1 = M1.thermal_conductivity
+
+    D2 = M2.thermal_diffusivity
+
+    K2 = M2.thermal_conductivity
 
     Z = np.zeros(shape=[node_cnt, node_cnt], dtype=FLOAT64)
+
+    ARR = np.array([1, -2, 1], dtype=FLOAT64)
 
     for i in range(0, node_cnt):
         match i:
 
             case 0:
-                Z[i, i:i + 3] = (a1 / dz**2) * np.array([1, -2, 1], dtype=FLOAT64)  # fwd
+                Z[i, i:i + 3] = (D1 / dZ2) * ARR  # fwd
 
             case i if (i > 0) & (i < NODES_PER_LAYER_CNT - 1):
-                print(i)
-                Z[i, i - 1:i + 2] = (a1 / dz**2) * np.array([1, -2, 1], dtype=FLOAT64)
+                Z[i, i - 1:i + 2] = (D1 / dZ2) * ARR
 
             case i if i == NODES_PER_LAYER_CNT - 1:
-                pass
+                Z[i, i - 2:i - 2 + 5] = mk_interface_kernal(D1, K1, D2, K2, dZ2)
 
             case i if (i > NODES_PER_LAYER_CNT - 1) & (i < node_cnt - 1):
-                print(i)
-                Z[i, i - 1:i + 2] = (a2 / dz**2) * np.array([1, -2, 1], dtype=FLOAT64)
-
+                Z[i, i - 1:i + 2] = (D2 / dZ2) * ARR
             case i if i == node_cnt - 1:
 
-                Z[i, i - 2:i + 1] = (a2 / dz**2) * np.array([1, -2, 1], dtype=FLOAT64)
+                Z[i, i - 2:i + 1] = (D2 / dZ2) * ARR  # bkwd
 
             # case _:
             #     raise ValueError('Illegal index reached.')
@@ -220,13 +238,11 @@ NODES_PER_LAYER_CNT = 4
 
 node_cnt = LAYER_CNT * (NODES_PER_LAYER_CNT - 1) + 1
 
-node_spacing = 0.001
-
-time_spacing = 0
+DELTA_Z = 0.001
 
 M1 = Material('tst', 1000, 0.200, 2000, 180, None, 300, 0.6)
 
-M2 = Material('tst', 1000, 0.400, 2000, 180, None, 300, 0.6)
+# M2 = Material('tst', 1000, 0.400, 2000, 180, None, 300, 0.6)
 
 T = np.array([T_AMB] * node_cnt, dtype=FLOAT64)
 
@@ -234,7 +250,7 @@ T = np.array([T_AMB] * node_cnt, dtype=FLOAT64)
 T[0:NODES_PER_LAYER_CNT - 1] = T_HOT
 
 # Set the interface temperature
-T[NODES_PER_LAYER_CNT - 1] = calculate_interface_temperature(M1, M2, T_HOT, T_AMB)
+T[NODES_PER_LAYER_CNT - 1] = calculate_interface_temperature(M1, M1, T_HOT, T_AMB)
 
 print(T)
 
