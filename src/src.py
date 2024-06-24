@@ -115,10 +115,10 @@ def calculate_interface_temperature(M1: Material, M2: Material, T1: float, T2: f
         float: Interface temperature [degC].
     """
 
-    if isinstance(T1) != float or isinstance(T2) != float:
+    if not isinstance(T1, float) or not isinstance(T2) != float:
         raise TypeError('T1 and T2 must be type float.')
 
-    if isinstance(M1) != Material or isinstance(M2) != Material:
+    if not isinstance(M1,Material) or not isinstance(M2, Material):
         raise TypeError('M1 and M2 must be type Material.')
 
     # Handle no temperature change case.
@@ -154,10 +154,10 @@ def inch_to_millimeter(f: float, n: int = 1) -> float:
     can also be used to do the reverse conversion, as, for example, `n = -1` 
     converts the argument from millimeteres to inches. """
 
-    if isinstance(f) != float or isinstance(f) != int:
+    if not isinstance(f, (float, int)):
         raise TypeError('Argument f must be of type int or float).')
 
-    if isinstance(n) != int:
+    if not isinstance(n, int):
         raise TypeError('Argument n must be type int.')
 
     if f == 0:
@@ -166,6 +166,7 @@ def inch_to_millimeter(f: float, n: int = 1) -> float:
     res = float(f) * (25.4**n)
 
     return res
+
 
 
 LAYER_CNT = 2
@@ -178,6 +179,14 @@ node_spacing = 0
 
 time_spacing = 0
 
-mat = Material('tst', 1000, 0.200, 2000, 180, None, 300, 0.6)
+M1 = Material('tst', 1000, 0.200, 2000, 180, None, 300, 0.6)
+
+T = np.array([0] * node_cnt, dtype=FLOAT64)
+
+T[0:NODES_PER_LAYER_CNT - 1] = 1
+
+T[NODES_PER_LAYER_CNT] = calculate_interface_temperature(M1,M1, 100,300)
+
+
 
 print(T)
