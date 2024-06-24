@@ -60,13 +60,13 @@ class Material():
 
         self.extrusion_temp = float(extrusion_temp)  # [K]
 
-        if not isinstance(emissivity, (int, float)):
+        if not isinstance(emissivity, (NoneType, int, float)):
             raise TypeError('Emissivity must be type float.')
 
-        if emissivity < 0.0 or emissivity > 1.0:
+        if not isinstance(emissivity, NoneType) and (emissivity < 0.0 or emissivity > 1.0):
             raise ValueError('Emissivity must be between 0 and 1.')
 
-        self.emmisivity: float = float(emissivity)  # [0.0-1.0]
+        self.emmisivity = float(emissivity) if not isinstance(emissivity, NoneType) else None  # [0.0-1.0]
 
     @property
     def volumetric_heat_capacity(self) -> float:
