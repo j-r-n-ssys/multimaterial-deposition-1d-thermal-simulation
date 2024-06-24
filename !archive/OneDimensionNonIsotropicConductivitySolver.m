@@ -15,7 +15,7 @@ Model.ThermalDiffusivity = Model.ThermalConductivity / Model.VolumetricHeatCapac
 
 Support.Name = 'QSR Support Material';
 Support.Structure = 'Amorphous, Unfilled';
-Support.BaseResin = 'PMMA (Approximation';
+Support.BaseResin = 'PMMA (Approximation)';
 Support.Density = 1180;
 Support.ThermalConductivity = 0.1;
 Support.SpecficHeatCapacity = 1950;
