@@ -169,6 +169,10 @@ def inch_to_millimeter(f: float, n: int = 1) -> float:
     return res
 
 
+def mk_conduction_matrix(M1:Material, M2:Material) -> np.ndarray:
+    """---IN DEVELOPMENT---"""
+    
+
 T_AMB = 200
 
 T_HOT = 400
