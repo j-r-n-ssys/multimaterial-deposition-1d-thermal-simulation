@@ -66,9 +66,27 @@ def calculate_interface_temperature(M1: Material, M2: Material, T1: float, T2: f
         float: Interface temperature [degC].
     """
     
+    if isinstance(T1) != float or isinstance(T2) != float:
+        raise TypeError('T1 and T2 must be type float.')
+    
+    if isinstance(M1) != Material or isinstance(M2) != Material:
+        raise TypeError('M1 and M2 must be type Material.')
+    
+    # Handle no temperature change case. 
+    if T1 == T2:
+        return T1
+        
+    # Store M1s effusivity. 
     e1 = M1.thermal_effusivity
     
+    if e1 == 0:
+        raise ValueError('M1 effusivity is zero.')
+    
+    # Store M2s effusivity. 
     e2 = M2.thermal_effusivity
+    
+    if e2 == 0: 
+        raise ValueError('M2 effusivity is zero.')
 
     num = (e1 * T1) + (e2 * T2)
 
