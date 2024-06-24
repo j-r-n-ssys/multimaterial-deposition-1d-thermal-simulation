@@ -175,9 +175,9 @@ T_HOT = 400
 
 LAYER_CNT = 2
 
-NODES_PER_LAYER_CNT = 10
+NODES_PER_LAYER_CNT = 4
 
-node_cnt = LAYER_CNT * NODES_PER_LAYER_CNT
+node_cnt = LAYER_CNT * (NODES_PER_LAYER_CNT - 1) + 1
 
 node_spacing = 0
 
@@ -185,12 +185,12 @@ time_spacing = 0
 
 M1 = Material('tst', 1000, 0.200, 2000, 180, None, 300, 0.6)
 
-T = np.array([0] * node_cnt, dtype=FLOAT64)
+T = np.array([T_AMB] * node_cnt, dtype=FLOAT64)
 
+# Apply the hot temperature.
 T[0:NODES_PER_LAYER_CNT - 1] = T_HOT
 
-T[:] = T_AMB
-
-T[NODES_PER_LAYER_CNT] = calculate_interface_temperature(M1, M1, T_HOT, T_AMB)
+# Set the interface temperature
+T[NODES_PER_LAYER_CNT - 1] = calculate_interface_temperature(M1, M1, T_HOT, T_AMB)
 
 print(T)
