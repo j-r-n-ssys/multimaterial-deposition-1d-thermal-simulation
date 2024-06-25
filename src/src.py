@@ -172,7 +172,7 @@ def inch_to_millimeter(f: float, n: int = 1) -> float:
 def mk_conduction_matrix(M1: Material, M2: Material) -> np.ndarray:
     """---IN DEVELOPMENT---"""
 
-    def mk_interface_coefficients(D1:float, K1:float, D2:float, K2:float, dZ:float) -> np.ndarray:
+    def mk_interface_coefficients(D1: float, K1: float, D2: float, K2: float, dZ: float) -> np.ndarray:
         """Calculate the second order finite difference (FD) approximation coefficients at the two-body interface using
         conductivity matching as derived in in 'Finite Difference Schemes for Multilayer Diffusion' by Hickson et al.
         A relevant assumption is that the interface is at a node. 
@@ -230,12 +230,12 @@ def mk_conduction_matrix(M1: Material, M2: Material) -> np.ndarray:
                 Z[i, i - 1:i + 2] = (D1 / dZ2) * ARR
 
             case i if i == NODES_PER_LAYER_CNT - 1:
-                Z[i, i - 2:i - 2 + 5] = mk_interface_coefficients(D1, K1, D2, K2, dZ2)
+                Z[i, i - 2:i - 2 + 5] = mk_interface_coefficients(D1, K1, D2, K2, dZ)
 
             case i if (i > NODES_PER_LAYER_CNT - 1) & (i < node_cnt - 1):
                 Z[i, i - 1:i + 2] = (D2 / dZ2) * ARR
-            case i if i == node_cnt - 1:
 
+            case i if i == node_cnt - 1:
                 Z[i, i - 2:i + 1] = (D2 / dZ2) * ARR  # bkwd
 
             case _:
