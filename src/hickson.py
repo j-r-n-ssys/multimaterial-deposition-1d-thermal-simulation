@@ -161,6 +161,8 @@ def jump_match_coeff(K1: float, K2: float, h0: float, h1: float, h2: float, H: f
 
     if DEBUG:
         print(f'arr_p:   {arr_p}\n')
+        
+    return arr_m, arr_p
 
 
 if __name__ == '__main__':
