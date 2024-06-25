@@ -41,16 +41,16 @@ def conductivity_match_coeff(D1: float, K1: float, D2: float, K2: float, dZ: flo
     return coeff
 
 
-def jump_match_coeff(K1, K2, h0, h1, h2, H) -> tuple[np.ndarray, np.ndarray]:
+def jump_match_coeff(K1: float, K2: float, h0: float, h1: float, h2: float, H: float) -> tuple[np.ndarray, np.ndarray]:
     """From 'Finite Difference Schemes for Multilayer Diffusion' by Hickson et al., 2011. 
 
     Args:
-        K1 (_type_): _description_
-        K2 (_type_): _description_
-        h0 (_type_): _description_
-        h1 (_type_): _description_
-        h2 (_type_): _description_
-        H (_type_): _description_
+        K1 (float): Body 1 thermal conductivity [W/M-K]. 
+        K2 (float): Body 2 thermal conducitivity [W/m-K]. 
+        h0 (float): Node-to-node spacing [m].
+        h1 (float): Body 1 node-to-interface distance [m]. 
+        h2 (float): Body 2 interface-to-node distance [m]
+        H (float): Contact transfer coefficient [0, +inf]. If this value is equal to zero, the interface is a perfect insulator. 
 
     Returns:
         tuple[np.ndarray, np.ndarray]: _description_
@@ -69,7 +69,9 @@ def jump_match_coeff(K1, K2, h0, h1, h2, H) -> tuple[np.ndarray, np.ndarray]:
     #
     #
 
-    print(' ')
+    if DEBUG:
+        print(' ')
+        print('')
 
     if not isinstance(K1, (int, float)) or not isinstance(K1, (int, float)):
         raise TypeError('Conducitivity K1 and K2 must be a numerical type.')
@@ -86,11 +88,14 @@ def jump_match_coeff(K1, K2, h0, h1, h2, H) -> tuple[np.ndarray, np.ndarray]:
     if h1 <= 0 or h2 <= 0:
         raise ValueError('Node-to-interface distances h1 and h2 must be greater than zero.')
 
-    if h1 + h2 != h0:
+    if (h1 + h2) != h0:
         raise ValueError('The sume of node-to-interface distances h1 and h2 must be equal node-to-node distance h0')
 
-    if not isinstance(K1, (int, float)) or not isinstance(K1, (int, float)):
-        raise TypeError('Conducitivity K1 and K2 must be a numerical type.')
+    if not isinstance(H, (int, float)):
+        raise TypeError('Contact transfer coefficient H must be a numerical type.')
+
+    if H < 0:
+        raise TypeError('Contact transfer coefficient H must be greater than or equal to zero.')
 
     arr_m = np.zeros(shape=4, dtype=FLOAT64)
 
@@ -116,7 +121,7 @@ def jump_match_coeff(K1, K2, h0, h1, h2, H) -> tuple[np.ndarray, np.ndarray]:
     arr_m_1[3] = (-1 * h1 * h2**2 * (h0 + h1) * H * K2) / lam
 
     if DEBUG:
-        print(f'arr_m_1: {arr_m_1}')
+        print(f'arr_m_1: {arr_m_1}\n')
 
     den = (h0 * h1 * (h0 + h1))
 
@@ -125,12 +130,12 @@ def jump_match_coeff(K1, K2, h0, h1, h2, H) -> tuple[np.ndarray, np.ndarray]:
     arr_m_2[1] = -1 * (h0 + h1) / den
 
     if DEBUG:
-        print(f'arr_m_2: {arr_m_2}')
+        print(f'arr_m_2: {arr_m_2}\n')
 
     arr_m = h0 * arr_m_1 / den + arr_m_2
 
     if DEBUG:
-        print(f'arr_m:   {arr_m}')
+        print(f'arr_m:   {arr_m}\n')
 
     arr_p_1[0] = (-1 * h1**2 * h2 * (h0 + h2) * H * K1) / lam
 
@@ -141,7 +146,7 @@ def jump_match_coeff(K1, K2, h0, h1, h2, H) -> tuple[np.ndarray, np.ndarray]:
     arr_p_1[3] = (-1 * ((h0 + h1) * (h1 * H + K1) + h1 * K1) * h2**2 * K2) / lam
 
     if DEBUG:
-        print(f'arr_p_1: {arr_p_1}')
+        print(f'arr_p_1: {arr_p_1}\n')
 
     den = (h0 * h2 * (h0 + h2))
 
@@ -150,14 +155,14 @@ def jump_match_coeff(K1, K2, h0, h1, h2, H) -> tuple[np.ndarray, np.ndarray]:
     arr_p_2[3] = h2 / den
 
     if DEBUG:
-        print(f'arr_p_2: {arr_p_2}')
+        print(f'arr_p_2: {arr_p_2}\n')
 
     arr_p = h0 * arr_p_1 / den + arr_p_2
 
     if DEBUG:
-        print(f'arr_p:   {arr_p}')
+        print(f'arr_p:   {arr_p}\n')
 
 
 if __name__ == '__main__':
 
-    jump_match_coeff(4, 4, 2, 1, 1, 10**15)
+    jump_match_coeff(4, 4, 2, 1, 1, 0)
