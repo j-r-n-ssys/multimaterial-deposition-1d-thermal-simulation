@@ -116,24 +116,21 @@ def jump_match_coeff(K1, K2, h0, h1, h2, H) -> tuple[np.ndarray, np.ndarray]:
     arr_m_1[3] = (-1 * h1 * h2**2 * (h0 + h1) * H * K2) / lam
 
     if DEBUG:
-        print(arr_m_1)
+        print(f'arr_m_1: {arr_m_1}')
 
     den = (h0 * h1 * (h0 + h1))
-    
-    if DEBUG:
-        print(den)
 
     arr_m_2[0] = h1 / den
 
     arr_m_2[1] = -1 * (h0 + h1) / den
-    
+
     if DEBUG:
-        print(arr_m_2)
+        print(f'arr_m_2: {arr_m_2}')
 
     arr_m = h0 * arr_m_1 / den + arr_m_2
 
     if DEBUG:
-        print(arr_m)
+        print(f'arr_m:   {arr_m}')
 
     arr_p_1[0] = (-1 * h1**2 * h2 * (h0 + h2) * H * K1) / lam
 
@@ -144,24 +141,21 @@ def jump_match_coeff(K1, K2, h0, h1, h2, H) -> tuple[np.ndarray, np.ndarray]:
     arr_p_1[3] = (-1 * ((h0 + h1) * (h1 * H + K1) + h1 * K1) * h2**2 * K2) / lam
 
     if DEBUG:
-        print(arr_p_1)
+        print(f'arr_p_1: {arr_p_1}')
 
     den = (h0 * h2 * (h0 + h2))
-
-    if DEBUG:
-        print(den)
 
     arr_p_2[2] = -1 * (h0 + h2) / den
 
     arr_p_2[3] = h2 / den
-    
+
     if DEBUG:
-        print(arr_p_2)
+        print(f'arr_p_2: {arr_p_2}')
 
     arr_p = h0 * arr_p_1 / den + arr_p_2
 
     if DEBUG:
-        print(arr_p)
+        print(f'arr_p:   {arr_p}')
 
 
 if __name__ == '__main__':
