@@ -253,6 +253,10 @@ T[0:NODES_PER_LAYER_CNT - 1] = T_HOT
 # Set the interface temperature
 T[NODES_PER_LAYER_CNT - 1] = calculate_interface_temperature(M1, M1, T_HOT, T_AMB)
 
+res[:,0] = T
+
+print(res[:,0:5])
+
 print(T)
 
-mk_conduction_matrix(M1, M1)
+# mk_conduction_matrix(M1, M1)
