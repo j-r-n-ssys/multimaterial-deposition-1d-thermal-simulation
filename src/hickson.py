@@ -65,18 +65,20 @@ def cond_match_coeff(K1: float, D1: float, K2: float, D2: float, h: float) -> np
     return coeff
 
 
-def jump_match_coeff(K1: float, K2: float, h0: float, h1: float, h2: float, H: float) -> tuple[np.ndarray, np.ndarray]:
+def jump_match_coeff(K1: float, D1:float, K2: float, D2:float, h0: float, h1: float, h2: float, H: float) -> tuple[np.ndarray, np.ndarray]:
     """Calculate the second order finite difference (FD) approximation 
     coefficients on both sides of a two-body interface using jump matching. A 
     fundamental assumption is that the interface is not co-located with a node.
 
     Args:
-        K1 (float): Body 1 thermal conductivity [W/M-K]. 
-        K2 (float): Body 2 thermal conducitivity [W/m-K]. 
+        K1 (float): Body 1 thermal conductivity [W/m-K]. 
+        D1 (float): Body 1 thermal diffusivity [sq.m/s].
+        K2 (float): Body 2 thermal conductivity [W/m-K]. 
+        D2 (float): Body 2 thermal diffusivity [sq.m/s]. 
         h0 (float): Node-to-node spacing [m].
         h1 (float): Body 1 node-to-interface distance [m]. 
         h2 (float): Body 2 interface-to-node distance [m]
-        H (float): Contact transfer coefficient [0, +inf]. If this value is equal to zero, the interface is a perfect insulator. 
+        H (float): Contact transfer coefficient [0, +inf]. Examples: H = 0: the interface is a perfect insulator, H -> +inf, the interface is in perfect contact. 
 
     Returns:
         tuple[np.ndarray, np.ndarray]: _description_
@@ -107,6 +109,12 @@ def jump_match_coeff(K1: float, K2: float, h0: float, h1: float, h2: float, H: f
 
     if not isinstance(h0, (int, float)) or not isinstance(h1, (int, float)) or not isinstance(h2, (int, float)):
         raise TypeError('Node spacing h0, h1, and h2 must be a numerical type.')
+
+    if not isinstance(D1, (int, float)) or not isinstance(D2, (int, float)):
+        raise TypeError('Diffusivities D1 and D2 must be a numerical type.')
+
+    if D1 <= 0 or D2 <= 0:
+        raise ValueError('Diffusivities D1 and D2 must be greater than zero.')
 
     if h0 <= 0:
         raise ValueError('Node-to-node distance h0 must be greater than zero.')
