@@ -21,7 +21,7 @@ def cond_match_coeff(K1: float, D1: float, K2: float, D2: float, h: float) -> np
         D1 (float): Body 1 thermal diffusivity [sq.m/s].
         K2 (float): Body 2 thermal conductivity [W/m-K]. 
         D2 (float): Body 2 thermal diffusivity [sq.m/s]. 
-        dZ (float): Finite difference node spacing [m].
+        dZ (float): Finite difference node-to-node distance [m].
 
     Returns:
         np.ndarray: Finite difference (FD) approximation coefficients.
@@ -40,7 +40,7 @@ def cond_match_coeff(K1: float, D1: float, K2: float, D2: float, h: float) -> np
         raise ValueError('Diffusivities D1 and D2 must be greater than zero.')
 
     if not isinstance(h, (int, float)):
-        raise TypeError('Node spacing h must be a numerical type.')
+        raise TypeError('Node-to-node distance h must be a numerical type.')
 
     if h <= 0:
         raise ValueError('Node-to-node distance h must be greater than zero.')
@@ -75,9 +75,9 @@ def jump_match_coeff(K1: float, D1:float, K2: float, D2:float, h0: float, h1: fl
         D1 (float): Body 1 thermal diffusivity [sq.m/s].
         K2 (float): Body 2 thermal conductivity [W/m-K]. 
         D2 (float): Body 2 thermal diffusivity [sq.m/s]. 
-        h0 (float): Node-to-node spacing [m].
-        h1 (float): Body 1 node-to-interface distance [m]. 
-        h2 (float): Body 2 interface-to-node distance [m]
+        h0 (float): Node-to-node distance [m].
+        h1 (float): Body 1 nearest-node-to-interface distance [m]. 
+        h2 (float): Body 2 interface-to-nearest-node distance [m]
         H (float): Contact transfer coefficient [0, +inf]. Examples: H = 0: the interface is a perfect insulator, H -> +inf, the interface is in perfect contact. 
 
     Returns:
@@ -94,7 +94,7 @@ def jump_match_coeff(K1: float, D1:float, K2: float, D2:float, h0: float, h1: fl
     #
 
     if DEBUG:
-        print(' ')
+        print('')
         print('')
 
     if not isinstance(K1, (int, float)) or not isinstance(K1, (int, float)):
@@ -103,17 +103,20 @@ def jump_match_coeff(K1: float, D1:float, K2: float, D2:float, h0: float, h1: fl
     if K1 <= 0 or K2 <= 0:
         raise ValueError('Conducitivties K1 and K2 must be greater than zero.')
 
-    if not isinstance(h0, (int, float)) or not isinstance(h1, (int, float)) or not isinstance(h2, (int, float)):
-        raise TypeError('Node spacing h0, h1, and h2 must be a numerical type.')
-
     if not isinstance(D1, (int, float)) or not isinstance(D2, (int, float)):
         raise TypeError('Diffusivities D1 and D2 must be a numerical type.')
 
     if D1 <= 0 or D2 <= 0:
         raise ValueError('Diffusivities D1 and D2 must be greater than zero.')
 
+    if not isinstance(h0, (int, float)):
+        raise TypeError('Node-to-node distnce h0 must be a numerical type.')
+
     if h0 <= 0:
         raise ValueError('Node-to-node distance h0 must be greater than zero.')
+
+    if not isinstance(h1, (int, float)) or not isinstance(h2, (int, float)):
+        raise TypeError('Node-to-interface distance h1 and h2 must be a numerical type.')
 
     if h1 <= 0 or h2 <= 0:
         raise ValueError('Node-to-interface distances h1 and h2 must be greater than zero.')
