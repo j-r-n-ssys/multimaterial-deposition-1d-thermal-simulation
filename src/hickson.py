@@ -1,4 +1,7 @@
-"""This module contains functions from Hickson et al., 2011."""
+"""R. I. Hickson, S. I. Barry, G. N. Mercer, and H. S. Sidhu, “Finite 
+difference schemes for multilayer diffusion,” Mathematical and computer 
+modelling, vol. 54, no. 1-2, pp. 210-220, Jul. 2011, doi: 
+https://doi.org/10.1016/j.mcm.2011.02.003."""
 
 import numpy as np
 
