@@ -81,13 +81,9 @@ def jump_match_coeff(K1: float, D1:float, K2: float, D2:float, h0: float, h1: fl
         H (float): Contact transfer coefficient [0, +inf]. Examples: H = 0: the interface is a perfect insulator, H -> +inf, the interface is in perfect contact. 
 
     Returns:
-        tuple[np.ndarray, np.ndarray]: _description_
+        tuple[np.ndarray, np.ndarray]: FD approximation coeffieints are node n-1 and node n+1
     """
-
-    #   0       -2
-    #   1       -1
-    #   2        1
-    #   3        2
+    
     #
     #   h1
     #   D_i         K_i         K1
@@ -145,6 +141,11 @@ def jump_match_coeff(K1: float, D1:float, K2: float, D2:float, h0: float, h1: fl
 
     lam = h0 * (((h0 + 2 * h1) * (h0 + h2) * h2 * K1 + (h0 + h1) * (h0 + 2 * h2) * h1 * K2) * H + (h0 + 2 * h1) *
                 (h0 + 2 * h2) * K1 * K2)
+    
+    #      0       -2        1
+    #      1       -1        1
+    #      2        1        2
+    #      3        2        2
 
     arr_m_1[0] = (-1 * ((h0 + h2) * (h2 * H + K2) + h2 * K2) * h1**2 * K1) / lam
 
@@ -170,6 +171,11 @@ def jump_match_coeff(K1: float, D1:float, K2: float, D2:float, h0: float, h1: fl
 
     if DEBUG:
         print(f'arr_m:   {arr_m}\n')
+    
+    #      0       -2        1
+    #      1       -1        1
+    #      2        1        2
+    #      3        2        2
 
     arr_p_1[0] = (-1 * h1**2 * h2 * (h0 + h2) * H * K1) / lam
 
@@ -201,4 +207,4 @@ def jump_match_coeff(K1: float, D1:float, K2: float, D2:float, h0: float, h1: fl
 
 if __name__ == '__main__':
 
-    jump_match_coeff(4, 4, 2, 1, 1, 0)
+    jump_match_coeff(4, 1, 4, 1, 2, 1, 1, 0)
