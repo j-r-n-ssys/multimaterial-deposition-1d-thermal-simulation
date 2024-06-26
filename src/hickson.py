@@ -10,16 +10,16 @@ FLOAT64 = np.float64
 DEBUG = False
 
 
-def cond_match_coeff(D1: float, K1: float, D2: float, K2: float, h: float) -> np.ndarray:
+def cond_match_coeff(K1: float, D1: float, K2: float, D2: float, h: float) -> np.ndarray:
     """Calculate the second order finite difference (FD) approximation 
     coefficients at the two-body interface using conductivity matching. 
 
     Args:
-        D1 (float): Body 1 thermal diffusivity. 
-        K1 (float): Body 1 thermal conductivity. 
-        D2 (float): Body 2 thermal diffusivity. 
-        K2 (float): Body 2 thermal conductivity. 
-        dZ (float): Finite difference node spacing. 
+        K1 (float): Body 1 thermal conductivity [W/m-K]. 
+        D1 (float): Body 1 thermal diffusivity [sq.m/s].
+        K2 (float): Body 2 thermal conductivity [W/m-K]. 
+        D2 (float): Body 2 thermal diffusivity [sq.m/s]. 
+        dZ (float): Finite difference node spacing [m].
 
     Returns:
         np.ndarray: Finite difference (FD) approximation coefficients.
