@@ -10,7 +10,7 @@ FLOAT64 = np.float64
 DEBUG = True
 
 
-def conductivity_match_coeff(D1: float, K1: float, D2: float, K2: float, h: float) -> np.ndarray:
+def cond_match_coeff(D1: float, K1: float, D2: float, K2: float, h: float) -> np.ndarray:
     """Calculate the second order finite difference (FD) approximation 
     coefficients at the two-body interface using conductivity matching. 
 
