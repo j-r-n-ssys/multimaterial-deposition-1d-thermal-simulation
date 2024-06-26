@@ -50,7 +50,7 @@ def cond_match_coeff(K1: float, D1: float, K2: float, D2: float, h: float) -> np
 
     # Calculate
     den = (6 * (K1 + K2) * h**2)
-    
+
     print(den)
 
     coeff[0] = ((2 * K1 + 3 * K2) * D1 - D2 * K1) / den
@@ -67,7 +67,8 @@ def cond_match_coeff(K1: float, D1: float, K2: float, D2: float, h: float) -> np
     return coeff
 
 
-def jump_match_coeff(K1: float, D1:float, K2: float, D2:float, h0: float, h1: float, h2: float, H: float) -> tuple[np.ndarray, np.ndarray]:
+def jump_match_coeff(K1: float, D1: float, K2: float, D2: float, h0: float, h1: float, h2: float,
+                     H: float) -> tuple[np.ndarray, np.ndarray]:
     """Calculate the second order finite difference (FD) approximation 
     coefficients on both sides of a two-body interface using jump matching. A 
     fundamental assumption is that the interface is not co-located with a node.
@@ -85,7 +86,7 @@ def jump_match_coeff(K1: float, D1:float, K2: float, D2:float, h0: float, h1: fl
     Returns:
         tuple[np.ndarray, np.ndarray]: FD approximation coeffieints are node n-1 and node n+1
     """
-    
+
     #
     #   h1
     #   D_i         K_i         K1
@@ -146,7 +147,7 @@ def jump_match_coeff(K1: float, D1:float, K2: float, D2:float, h0: float, h1: fl
 
     lam = h0 * (((h0 + 2 * h1) * (h0 + h2) * h2 * K1 + (h0 + h1) * (h0 + 2 * h2) * h1 * K2) * H + (h0 + 2 * h1) *
                 (h0 + 2 * h2) * K1 * K2)
-    
+
     #      0       -2        1
     #      1       -1        1
     #      2        1        2
@@ -172,11 +173,11 @@ def jump_match_coeff(K1: float, D1:float, K2: float, D2:float, h0: float, h1: fl
     if DEBUG:
         print(f'arr_m_2: {arr_m_2}\n')
 
-    arr_m = h0 * arr_m_1 / den + arr_m_2
+    arr_m = D1 * (h0 * arr_m_1 / den + arr_m_2)
 
     if DEBUG:
         print(f'arr_m:   {arr_m}\n')
-    
+
     #      0       -2        1
     #      1       -1        1
     #      2        1        2
@@ -202,7 +203,7 @@ def jump_match_coeff(K1: float, D1:float, K2: float, D2:float, h0: float, h1: fl
     if DEBUG:
         print(f'arr_p_2: {arr_p_2}\n')
 
-    arr_p = h0 * arr_p_1 / den + arr_p_2
+    arr_p = D2 * (h0 * arr_p_1 / den + arr_p_2)
 
     if DEBUG:
         print(f'arr_p:   {arr_p}\n')
