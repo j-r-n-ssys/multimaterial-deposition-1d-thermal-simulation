@@ -10,10 +10,9 @@ FLOAT64 = np.float64
 DEBUG = True
 
 
-def conductivity_match_coeff(D1: float, K1: float, D2: float, K2: float, dZ: float) -> np.ndarray:
+def conductivity_match_coeff(D1: float, K1: float, D2: float, K2: float, h: float) -> np.ndarray:
     """Calculate the second order finite difference (FD) approximation 
-    coefficients at the two-body interface using conductivity matching. A 
-    relevant assumption is that the interface is at a node. 
+    coefficients at the two-body interface using conductivity matching. 
 
     Args:
         D1 (float): Body 1 thermal diffusivity. 
@@ -24,21 +23,25 @@ def conductivity_match_coeff(D1: float, K1: float, D2: float, K2: float, dZ: flo
 
     Returns:
         np.ndarray: Finite difference (FD) approximation coefficients.
+        
+    Assumptions:
+        The interface is co-located with the middle node of this approximation.
+        Node spacing is equal. 
     """
 
-    dZ2 = dZ**2
+    # Initialize the 5 x 1 coefficient matrix.
+    coeff = np.zeros(shape=5, dtype=FLOAT64)
 
-    Yp2 = (2 * K1 + 3 * K2) * D1 - D2 * K1
+    # Calculate
+    den = (6 * (K1 + K2) * h**2)
 
-    Yp1 = 4 * D2 * K1 - 2 * (K1 + 3 * K2) * D1
+    coeff[0] = ((2 * K1 + 3 * K2) * D1 - D2 * K1) / den
 
-    Ym1 = 4 * D1 * K2 - 2 * (3 * K1 + K2) * D2
+    coeff[1] = (4 * D2 * K1 - 2 * (K1 + 3 * K2) * D1) / den
 
-    Ym2 = (3 * K1 + 2 * K2) * D2 - D1 * K2
+    coeff[3] = (4 * D1 * K2 - 2 * (3 * K1 + K2) * D2) / den
 
-    den = (6 * (K1 + K2) * dZ2)
-
-    coeff = np.array([Yp2, Yp1, 0, Ym1, Ym2], dtype=FLOAT64) / den  # finite difference approximation
+    coeff[4] = ((3 * K1 + 2 * K2) * D2 - D1 * K2) / den
 
     return coeff
 
@@ -163,7 +166,7 @@ def jump_match_coeff(K1: float, K2: float, h0: float, h1: float, h2: float, H: f
 
     if DEBUG:
         print(f'arr_p:   {arr_p}\n')
-        
+
     return arr_m, arr_p
 
 
