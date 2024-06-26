@@ -102,6 +102,9 @@ def inch_to_millimeter(f: float, n: int = 1) -> float:
 def mk_conduction_matrix(M1: Material, M2: Material) -> np.ndarray:
     """---IN DEVELOPMENT---"""
 
+    if NODES_PER_LAYER_CNT < 3:
+        raise ValueError('Node count must be greater than or equal to 3.')
+
     dZ = DELTA_Z
 
     dZ2 = dZ**2
@@ -118,28 +121,34 @@ def mk_conduction_matrix(M1: Material, M2: Material) -> np.ndarray:
 
     ARR = np.array([1, -2, 1], dtype=FLOAT64)
 
+    # for i in range(0, node_cnt):
+    #     match i:
+    #
+    #         case 0:
+    #             Z[i, i:i + 3] = (D1 / dZ2) * ARR  # fwd
+    #
+    #         case i if (i > 0) & (i < NODES_PER_LAYER_CNT - 1):
+    #             Z[i, i - 1:i + 2] = (D1 / dZ2) * ARR
+    #
+    #         case i if i == NODES_PER_LAYER_CNT - 1:
+    #             Z[i, i - 2:i - 2 + 5] = hickson.cond_match_coeff(D1, K1, D2, K2, dZ)
+    #
+    #         case i if (i > NODES_PER_LAYER_CNT - 1) & (i < node_cnt - 1):
+    #             Z[i, i - 1:i + 2] = (D2 / dZ2) * ARR
+    #
+    #         case i if i == node_cnt - 1:
+    #             Z[i, i - 2:i + 1] = (D2 / dZ2) * ARR  # bkwd
+    #
+    #         case _:
+    #             raise ValueError('Illegal index reached.')
+
     for i in range(0, node_cnt):
         match i:
-
             case 0:
                 Z[i, i:i + 3] = (D1 / dZ2) * ARR  # fwd
-
-            case i if (i > 0) & (i < NODES_PER_LAYER_CNT - 1):
-                Z[i, i - 1:i + 2] = (D1 / dZ2) * ARR
-
-            case i if i == NODES_PER_LAYER_CNT - 1:
-                coeff = hickson.cond_match_coeff(K1, D1, K2, D2, dZ)
-                print(coeff)
-                Z[i, i - 2:i - 2 + 5] = hickson.cond_match_coeff(D1, K1, D2, K2, dZ)
-
-            case i if (i > NODES_PER_LAYER_CNT - 1) & (i < node_cnt - 1):
-                Z[i, i - 1:i + 2] = (D2 / dZ2) * ARR
-
-            case i if i == node_cnt - 1:
-                Z[i, i - 2:i + 1] = (D2 / dZ2) * ARR  # bkwd
-
-            case _:
-                raise ValueError('Illegal index reached.')
+                
+            case i if i>0 and i < NODES_PER_LAYER_CNT - 1:
+                pass
 
     print(Z)
 
@@ -148,13 +157,15 @@ T_AMB = 200
 
 T_HOT = 400
 
+LAYER_THICKNESS = 1.000
+
 LAYER_CNT = 2
 
-NODES_PER_LAYER_CNT = 5
+NODES_PER_LAYER_CNT = 3
 
 node_cnt = LAYER_CNT * (NODES_PER_LAYER_CNT - 1) + 1
 
-DELTA_Z = 0.001
+DELTA_Z = LAYER_THICKNESS / NODES_PER_LAYER_CNT
 
 M1 = Material('QSR', 1180, 0.1, 1950, 165, None, 295, None)
 
