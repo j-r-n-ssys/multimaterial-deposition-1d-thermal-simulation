@@ -26,13 +26,13 @@ def cond_match_coeff(K1: float, D1: float, K2: float, D2: float, h: float) -> np
     Returns:
         np.ndarray: Finite difference (FD) approximation coefficients.
     """
-    
+
     if not isinstance(K1, (int, float)) or not isinstance(K1, (int, float)):
         raise TypeError('Conducitivities K1 and K2 must be a numerical type.')
 
     if K1 <= 0 or K2 <= 0:
         raise ValueError('Conducitivties K1 and K2 must be greater than zero.')
-    
+
     if not isinstance(D1, (int, float)) or not isinstance(D2, (int, float)):
         raise TypeError('Diffusivities D1 and D2 must be a numerical type.')
 
@@ -66,7 +66,9 @@ def cond_match_coeff(K1: float, D1: float, K2: float, D2: float, h: float) -> np
 
 
 def jump_match_coeff(K1: float, K2: float, h0: float, h1: float, h2: float, H: float) -> tuple[np.ndarray, np.ndarray]:
-    """Calcualte the finite difference approximation coefficients for the ju
+    """Calculate the second order finite difference (FD) approximation 
+    coefficients on both sides of a two-body interface using jump matching. A 
+    fundamental assumption is that the interface is not co-located with a node.
 
     Args:
         K1 (float): Body 1 thermal conductivity [W/M-K]. 
