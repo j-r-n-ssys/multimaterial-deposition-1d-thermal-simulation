@@ -82,10 +82,10 @@ def jump_match_coeff(K1: float, K2: float, h0: float, h1: float, h2: float, H: f
         print('')
 
     if not isinstance(K1, (int, float)) or not isinstance(K1, (int, float)):
-        raise TypeError('Conducitivity K1 and K2 must be a numerical type.')
+        raise TypeError('Conducitivities K1 and K2 must be a numerical type.')
 
     if K1 <= 0 or K2 <= 0:
-        raise ValueError('Conducitivty K1 and K2 must be greater than zero.')
+        raise ValueError('Conducitivties K1 and K2 must be greater than zero.')
 
     if not isinstance(h0, (int, float)) or not isinstance(h1, (int, float)) or not isinstance(h2, (int, float)):
         raise TypeError('Node spacing h0, h1, and h2 must be a numerical type.')
