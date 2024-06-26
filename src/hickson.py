@@ -28,6 +28,24 @@ def cond_match_coeff(K1: float, D1: float, K2: float, D2: float, h: float) -> np
         The interface is co-located with the middle node of this approximation.
         Node spacing is equal. 
     """
+    
+    if not isinstance(K1, (int, float)) or not isinstance(K1, (int, float)):
+        raise TypeError('Conducitivities K1 and K2 must be a numerical type.')
+
+    if K1 <= 0 or K2 <= 0:
+        raise ValueError('Conducitivties K1 and K2 must be greater than zero.')
+    
+    if not isinstance(D1, (int, float)) or not isinstance(D2, (int, float)):
+        raise TypeError('Diffusivities D1 and D2 must be a numerical type.')
+
+    if D1 <= 0 or D2 <= 0:
+        raise ValueError('Diffusivities D1 and D2 must be greater than zero.')
+
+    if not isinstance(h, (int, float)):
+        raise TypeError('Node spacing h must be a numerical type.')
+
+    if h <= 0:
+        raise ValueError('Node-to-node distance h must be greater than zero.')
 
     # Initialize the 5 x 1 coefficient matrix.
     coeff = np.zeros(shape=5, dtype=FLOAT64)
