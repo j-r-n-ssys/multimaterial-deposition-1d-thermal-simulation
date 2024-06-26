@@ -117,7 +117,7 @@ def mk_conduction_matrix(M1: Material, M2: Material) -> np.ndarray:
     Z = np.zeros(shape=[node_cnt, node_cnt], dtype=FLOAT64)
 
     ARR = np.array([1, -2, 1], dtype=FLOAT64)
-
+    
     for i in range(0, node_cnt):
         match i:
 
