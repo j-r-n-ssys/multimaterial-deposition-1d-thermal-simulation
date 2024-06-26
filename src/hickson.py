@@ -11,10 +11,9 @@ DEBUG = True
 
 
 def conductivity_match_coeff(D1: float, K1: float, D2: float, K2: float, dZ: float) -> np.ndarray:
-    """From 'Finite Difference Schemes for Multilayer Diffusion' by Hickson et al., 2011. 
-    Calculate the second order finite difference (FD) approximation coefficients at the two-body interface using
-    conductivity matching as derived in in 'Finite Difference Schemes for Multilayer Diffusion' by Hickson et al.
-    A relevant assumption is that the interface is at a node. 
+    """Calculate the second order finite difference (FD) approximation 
+    coefficients at the two-body interface using conductivity matching. A 
+    relevant assumption is that the interface is at a node. 
 
     Args:
         D1 (float): Body 1 thermal diffusivity. 
