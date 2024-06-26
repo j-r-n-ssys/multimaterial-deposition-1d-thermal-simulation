@@ -12,7 +12,9 @@ DEBUG = False
 
 def cond_match_coeff(K1: float, D1: float, K2: float, D2: float, h: float) -> np.ndarray:
     """Calculate the second order finite difference (FD) approximation 
-    coefficients at the two-body interface using conductivity matching. 
+    coefficients at the two-body interface using conductivity matching. A 
+    fundamental assumption is that the interface is co-located with the middle
+    node of this FD approximation. 
 
     Args:
         K1 (float): Body 1 thermal conductivity [W/m-K]. 
@@ -23,10 +25,6 @@ def cond_match_coeff(K1: float, D1: float, K2: float, D2: float, h: float) -> np
 
     Returns:
         np.ndarray: Finite difference (FD) approximation coefficients.
-        
-    Assumptions:
-        The interface is co-located with the middle node of this approximation.
-        Node spacing is equal. 
     """
     
     if not isinstance(K1, (int, float)) or not isinstance(K1, (int, float)):
@@ -68,7 +66,7 @@ def cond_match_coeff(K1: float, D1: float, K2: float, D2: float, h: float) -> np
 
 
 def jump_match_coeff(K1: float, K2: float, h0: float, h1: float, h2: float, H: float) -> tuple[np.ndarray, np.ndarray]:
-    """From 'Finite Difference Schemes for Multilayer Diffusion' by Hickson et al., 2011. 
+    """Calcualte the finite difference approximation coefficients for the ju
 
     Args:
         K1 (float): Body 1 thermal conductivity [W/M-K]. 
