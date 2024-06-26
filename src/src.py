@@ -1,87 +1,17 @@
 import json
 import math
+import matplotlib.pyplot as plt
 import numpy as np
 
 from types import NoneType
 
+import hickson
+
+from material import Material
+
 STEFAN_BOLTZMANN_CONSTANT = 5.670374419 * 1e-8
 
 FLOAT64 = np.float64
-
-
-class Material():
-    """This object represents a material."""
-
-    def __init__(self, name: str, density: float, thermal_conductivity: float, specific_heat_capacity: float,
-                 glass_transition: float, melt_transition: float, extrusion_temp: float, emissivity: float):
-        """Init."""
-
-        if not isinstance(name, str):
-            raise TypeError('Name must be a string.')
-
-        self.long_name = str(name)
-
-        if not isinstance(density, (int, float)):
-            raise TypeError('Density must be type float.')
-
-        if density < 0.0:
-            raise ValueError('Density must be greater than zero.')
-
-        self.density = float(density)  # [kg/m3]
-
-        if not isinstance(thermal_conductivity, (int, float)):
-            raise TypeError('Thermal conductivity must be type float.')
-
-        if thermal_conductivity < 0.0:
-            raise ValueError('Thermal conducitivty must be greater than zero.')
-
-        self.thermal_conductivity = float(thermal_conductivity)  # [W/m-K]
-
-        if not isinstance(specific_heat_capacity, (int, float)):
-            raise TypeError('Specific heat capacity must be type float.')
-
-        if specific_heat_capacity < 0.0:
-            raise ValueError('Specific heater capacity must be greater than zero.')
-
-        self.specific_heat_capacity = float(specific_heat_capacity)
-
-        if not isinstance(glass_transition, (int, float)):
-            raise TypeError('Glass transition temperature must be type float.')
-
-        self.glass_transition = float(glass_transition)  # [K]
-
-        if not isinstance(melt_transition, (NoneType, int, float)):
-            raise TypeError('Melt temperature must be type float.')
-
-        self.melt_transition = float(melt_transition) if not isinstance(melt_transition, NoneType) else None
-
-        if not isinstance(extrusion_temp, (int, float)):
-            raise TypeError('Extrusion temperature must be type float.')
-
-        self.extrusion_temp = float(extrusion_temp)  # [K]
-
-        if not isinstance(emissivity, (NoneType, int, float)):
-            raise TypeError('Emissivity must be type float.')
-
-        if not isinstance(emissivity, NoneType) and (emissivity < 0.0 or emissivity > 1.0):
-            raise ValueError('Emissivity must be between 0 and 1.')
-
-        self.emmisivity = float(emissivity) if not isinstance(emissivity, NoneType) else None  # [0.0-1.0]
-
-    @property
-    def volumetric_heat_capacity(self) -> float:
-        """Volumetric heat capacity [J/cu.m-K]."""
-        return self.density * self.specific_heat_capacity  # [J/m3-K]
-
-    @property
-    def thermal_effusivity(self) -> float:
-        """Thermal effusivity []. """
-        return math.sqrt(self.thermal_conductivity * self.volumetric_heat_capacity)
-
-    @property
-    def thermal_diffusivity(self) -> float:
-        """Thermal diffusivity [sq.m/s]."""
-        return self.thermal_conductivity / self.volumetric_heat_capacity  # [m2/s]
 
 
 class Later():
@@ -172,38 +102,6 @@ def inch_to_millimeter(f: float, n: int = 1) -> float:
 def mk_conduction_matrix(M1: Material, M2: Material) -> np.ndarray:
     """---IN DEVELOPMENT---"""
 
-    def mk_interface_coefficients(D1: float, K1: float, D2: float, K2: float, dZ: float) -> np.ndarray:
-        """Calculate the second order finite difference (FD) approximation coefficients at the two-body interface using
-        conductivity matching as derived in in 'Finite Difference Schemes for Multilayer Diffusion' by Hickson et al.
-        A relevant assumption is that the interface is at a node. 
-
-        Args:
-            D1 (float): Body 1 thermal diffusivity. 
-            K1 (float): Body 1 thermal conductivity. 
-            D2 (float): Body 2 thermal diffusivity. 
-            K2 (float): Body 2 thermal conductivity. 
-            dZ (float): Finite difference node spacing. 
-
-        Returns:
-            np.ndarray: Finite difference (FD) approximation coefficients.
-        """
-
-        dZ2 = dZ**2
-
-        Yp2 = (2 * K1 + 3 * K2) * D1 - D2 * K1
-
-        Yp1 = 4 * D2 * K1 - 2 * (K1 + 3 * K2) * D1
-
-        Ym1 = 4 * D1 * K2 - 2 * (3 * K1 + K2) * D2
-
-        Ym2 = (3 * K1 + 2 * K2) * D2 - D1 * K2
-
-        den = (6 * (K1 + K2) * dZ2)
-
-        fda = np.array([Yp2, Yp1, 0, Ym1, Ym2], dtype=FLOAT64) / den  # finite difference approximation
-
-        return fda
-
     dZ = DELTA_Z
 
     dZ2 = dZ**2
@@ -230,7 +128,9 @@ def mk_conduction_matrix(M1: Material, M2: Material) -> np.ndarray:
                 Z[i, i - 1:i + 2] = (D1 / dZ2) * ARR
 
             case i if i == NODES_PER_LAYER_CNT - 1:
-                Z[i, i - 2:i - 2 + 5] = mk_interface_coefficients(D1, K1, D2, K2, dZ)
+                coeff = hickson.cond_match_coeff(K1, D1, K2, D2, dZ)
+                print(coeff)
+                Z[i, i - 2:i - 2 + 5] = hickson.cond_match_coeff(D1, K1, D2, K2, dZ)
 
             case i if (i > NODES_PER_LAYER_CNT - 1) & (i < node_cnt - 1):
                 Z[i, i - 1:i + 2] = (D2 / dZ2) * ARR
@@ -240,8 +140,7 @@ def mk_conduction_matrix(M1: Material, M2: Material) -> np.ndarray:
 
             case _:
                 raise ValueError('Illegal index reached.')
-        print(i)
-
+            
     print(Z)
 
 
@@ -275,4 +174,8 @@ print(res[:, 0:5])
 
 print(T)
 
-# mk_conduction_matrix(M1, M1)
+res = mk_conduction_matrix(M1, M1)
+
+plt.matshow(res)
+
+plt.show()

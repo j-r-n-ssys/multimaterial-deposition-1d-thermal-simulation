@@ -7,7 +7,7 @@ import numpy as np
 
 FLOAT64 = np.float64
 
-DEBUG = False
+DEBUG = True
 
 
 def cond_match_coeff(K1: float, D1: float, K2: float, D2: float, h: float) -> np.ndarray:
@@ -50,6 +50,8 @@ def cond_match_coeff(K1: float, D1: float, K2: float, D2: float, h: float) -> np
 
     # Calculate
     den = (6 * (K1 + K2) * h**2)
+    
+    print(den)
 
     coeff[0] = ((2 * K1 + 3 * K2) * D1 - D2 * K1) / den
 
