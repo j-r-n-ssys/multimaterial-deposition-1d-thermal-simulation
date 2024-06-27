@@ -214,3 +214,28 @@ def jump_match_coeff(K1: float, D1: float, K2: float, D2: float, h0: float, h1: 
 if __name__ == '__main__':
 
     jump_match_coeff(4, 1, 4, 1, 2, 1, 1, 0)
+
+def calc_interface_temp(E1:float, T1:float, E2:float, T2:float) -> float:
+    """Calculate the temperature at the interface of two semi-infinite 
+
+    Args:
+        E1 (float): Body 1 effusivity [W-sqrt(s)/sq.m-K].
+        T1 (float): Body 1 temperature [degC].
+        E2 (float): Body 2 effusivity [W-sqrt(s)/sq.m-K].
+        T2 (float): Body 2 temperature [degC].
+
+    Raises:
+        TypeError: _description_
+        ValueError: _description_
+
+    Returns:
+        float: _description_
+    """
+
+    if not isinstance(E1, (int,float)) or not isinstance(E1, (int,float)) or not isinstance(E1, (int,float)) or not isinstance(E1, (int,float)):
+        raise TypeError('Temperatures T1 and T2 and effusivities E1 and E2 must be a numerical type')
+    
+    if E1 <= 0 or E2 <= 0:
+        raise ValueError('Effusivities E1 and E2 must be greater than zero.')
+    
+    return (E1 * T1 + E2 * T2) /(E1 + E2)
