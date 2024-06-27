@@ -120,8 +120,10 @@ def mk_conduction_matrix(M1: Material, M2: Material) -> np.ndarray:
     D2 = M2.thermal_diffusivity
     K2 = M2.thermal_conductivity
 
+    # Initialize the conduction coefficient matrix. 
     Z = np.zeros(shape=[NODE_CNT, NODE_CNT], dtype=FLOAT64)
 
+    # Initialize a convenience array for second order finite difference approximation matrix. 
     ARR = np.array([1, -2, 1], dtype=FLOAT64)
 
     for i in range(0, NODE_CNT):
@@ -138,7 +140,7 @@ def mk_conduction_matrix(M1: Material, M2: Material) -> np.ndarray:
                 Z[i + 1, i - 1:i + 3] = C2
 
             case i if i == NODES_PER_LAYER:
-                pass
+                pass # This nodes coefficients were already set in i == NODES_PER_LAYER - 1.  
 
             case i if i > NODES_PER_LAYER - 2 and i < NODE_CNT - 1:
                 Z[i, i - 1:i + 2] = (D2 / h0**2) * ARR
