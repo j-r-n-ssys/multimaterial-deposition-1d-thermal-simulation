@@ -7,7 +7,7 @@ from types import NoneType
 
 import hickson
 
-from material import Material
+from material import Material, QSR
 
 STEFAN_BOLTZMANN_CONSTANT = 5.670374419 * 1e-8
 
@@ -30,51 +30,6 @@ class Later():
     def area(self) -> float:
         """Approximate layer area. """
         return self.width * self.height
-
-
-def calculate_interface_temperature(M1: Material, M2: Material, T1: float, T2: float) -> float:
-    """Calculate interface temperature between two semi-infinite bodies using 
-    thermal effusivity. 
-
-    Args:
-        M1 (Material): Body 1 material parameter object. 
-        M2 (Material): Body 2 material parameter object. 
-        T1 (float): Body 1 temperature at interface [degC]. 
-        T2 (float): Body 2 temperature at interface [degC]. 
-
-    Returns:
-        float: Interface temperature [degC].
-    """
-
-    if not isinstance(T1, (int, float)) or not isinstance(T2, (int, float)):
-        raise TypeError('T1 and T2 must be type float.')
-
-    if not isinstance(M1, Material) or not isinstance(M2, Material):
-        raise TypeError('M1 and M2 must be type Material.')
-
-    # Handle no temperature change case.
-    if T1 == T2:
-        return T1
-
-    # Store M1s effusivity.
-    e1 = M1.thermal_effusivity
-
-    if e1 == 0:
-        raise ValueError('M1 effusivity is zero.')
-
-    # Store M2s effusivity.
-    e2 = M2.thermal_effusivity
-
-    if e2 == 0:
-        raise ValueError('M2 effusivity is zero.')
-
-    num = (e1 * T1) + (e2 * T2)
-
-    den = e1 + e2
-
-    Ti = num / den
-
-    return Ti
 
 
 def inch_to_millimeter(f: float, n: int = 1) -> float:
@@ -154,9 +109,9 @@ def mk_conduction_matrix(M1: Material, M2: Material) -> np.ndarray:
     return coeff
 
 
-T_AMB = 200
+T_AMB = 23
 
-T_HOT = 400
+T_HOT = QSR.extrusion_temp
 
 LAYER_THICKNESS = 1.000
 
@@ -173,8 +128,6 @@ DELTA_Z = LAYER_THICKNESS / NODES_PER_LAYER
 print(DELTA_Z)
 
 dt = 0.001
-
-M1 = Material('QSR', 1180, 0.22, 1950, 165, None, 290, None)
 
 T = np.array([T_AMB] * NODE_CNT, dtype=FLOAT64)
 
@@ -193,7 +146,7 @@ print(res[:, 0:5])
 
 print(T)
 
-coeff = mk_conduction_matrix(M1, M1)
+coeff = mk_conduction_matrix(QSR, QSR)
 
 print(coeff)
 
