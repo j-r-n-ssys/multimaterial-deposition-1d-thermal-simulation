@@ -124,27 +124,6 @@ def mk_conduction_matrix(M1: Material, M2: Material) -> np.ndarray:
 
     ARR = np.array([1, -2, 1], dtype=FLOAT64)
 
-    # for i in range(0, node_cnt):
-    #     match i:
-    #
-    #         case 0:
-    #             Z[i, i:i + 3] = (D1 / dZ2) * ARR  # fwd
-    #
-    #         case i if (i > 0) & (i < NODES_PER_LAYER_CNT - 1):
-    #             Z[i, i - 1:i + 2] = (D1 / dZ2) * ARR
-    #
-    #         case i if i == NODES_PER_LAYER_CNT - 1:
-    #             Z[i, i - 2:i - 2 + 5] = hickson.cond_match_coeff(D1, K1, D2, K2, dZ)
-    #
-    #         case i if (i > NODES_PER_LAYER_CNT - 1) & (i < node_cnt - 1):
-    #             Z[i, i - 1:i + 2] = (D2 / dZ2) * ARR
-    #
-    #         case i if i == node_cnt - 1:
-    #             Z[i, i - 2:i + 1] = (D2 / dZ2) * ARR  # bkwd
-    #
-    #         case _:
-    #             raise ValueError('Illegal index reached.')
-
     for i in range(0, NODE_CNT):
         match i:
             case 0:
