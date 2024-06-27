@@ -166,21 +166,24 @@ NODES_PER_LAYER = 5
 
 NODE_CNT = LAYER_CNT * NODES_PER_LAYER
 
+print(NODE_CNT)
+
 DELTA_Z = LAYER_THICKNESS / NODES_PER_LAYER
+
+print(DELTA_Z)
 
 dt = 0.001
 
-M1 = Material('QSR', 1180, 0.1, 1950, 165, None, 295, None)
+M1 = Material('QSR', 1180, 0.22, 1950, 165, None, 290, None)
 
 T = np.array([T_AMB] * NODE_CNT, dtype=FLOAT64)
 
+# Apply the hot temperature.
+T[0:NODES_PER_LAYER ] = T_HOT
+
 res = np.zeros(shape=[NODE_CNT, int(5e3)], dtype=FLOAT64)
 
-# Apply the hot temperature.
-T[0:NODES_PER_LAYER - 1] = T_HOT
 
-# Set the interface temperature
-T[NODES_PER_LAYER - 1] = calculate_interface_temperature(M1, M1, T_HOT, T_AMB)
 
 print(T)
 
@@ -191,6 +194,8 @@ print(res[:, 0:5])
 print(T)
 
 coeff = mk_conduction_matrix(M1, M1)
+
+print(coeff)
 
 # plt.matshow(res)
 
