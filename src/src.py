@@ -161,11 +161,10 @@ def mk_conduction_matrix(M1: Material, M2: Material) -> np.ndarray:
                 pass
 
             case i if i > NODES_PER_LAYER - 2 and i < NODE_CNT - 1:
-                #Z[i, i - 1:i + 2] = (D2 / dZ2) * ARR
-                print(i)
+                Z[i, i - 1:i + 2] = (D2 / dZ2) * ARR
                 
             case i if i == NODE_CNT - 1:
-                print(i)
+                Z[i, i - 2:i + 1] = (D2 / dZ2) * ARR
 
             case _:
                 raise ValueError('Illegal index.')
