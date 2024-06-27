@@ -108,16 +108,16 @@ def mk_conduction_matrix(M1: Material, M2: Material) -> np.ndarray:
     if NODES_PER_LAYER < 3:
         raise ValueError('Node count must be greater than or equal to 3.')
 
-    dZ = DELTA_Z
+    # Node-to-node distance.
+    h0 = DELTA_Z
     
-    dZ2 = dZ**2
+    # Node-to-interface distance. 
+    h1 = h2 = h0/2
 
+    # Store params for convenience. 
     D1 = M1.thermal_diffusivity
-
     K1 = M1.thermal_conductivity
-
     D2 = M2.thermal_diffusivity
-
     K2 = M2.thermal_conductivity
 
     Z = np.zeros(shape=[NODE_CNT, NODE_CNT], dtype=FLOAT64)
@@ -127,31 +127,29 @@ def mk_conduction_matrix(M1: Material, M2: Material) -> np.ndarray:
     for i in range(0, NODE_CNT):
         match i:
             case 0:
-                Z[i, i:i + 3] = (D1 / dZ2) * ARR  # fwd
+                Z[i, i:i + 3] = (D1 / h0**2) * ARR  # fwd
 
             case i if i > 0 and i < NODES_PER_LAYER - 1:
-                Z[i, i - 1:i + 2] = (D1 / dZ2) * ARR
+                Z[i, i - 1:i + 2] = (D1 / h0**2) * ARR
 
             case i if i == NODES_PER_LAYER - 1:
-                pass
-                print(i)
+                C1, C2 = hickson.jump_match_coeff(K1, D1, K2, D1, h0, h1, h2, 0)
+                Z[i, i - 1:i + 3] = C1
+                Z[i + 1, i - 1:i + 3] = C2
 
             case i if i == NODES_PER_LAYER:
                 pass
 
             case i if i > NODES_PER_LAYER - 2 and i < NODE_CNT - 1:
-                Z[i, i - 1:i + 2] = (D2 / dZ2) * ARR
-                
+                Z[i, i - 1:i + 2] = (D2 / h0**2) * ARR
+
             case i if i == NODE_CNT - 1:
-                Z[i, i - 2:i + 1] = (D2 / dZ2) * ARR
+                Z[i, i - 2:i + 1] = (D2 / h0**2) * ARR
 
             case _:
                 raise ValueError('Illegal index.')
 
-
-
     print(Z)
-    
 
 
 T_AMB = 200
