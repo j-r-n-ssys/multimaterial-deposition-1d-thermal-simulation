@@ -1,5 +1,7 @@
 """Module to contain the common material class."""
 
+import math
+
 from types import NoneType
 
 class Material():
