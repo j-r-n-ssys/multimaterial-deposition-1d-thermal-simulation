@@ -102,11 +102,14 @@ def inch_to_millimeter(f: float, n: int = 1) -> float:
 def mk_conduction_matrix(M1: Material, M2: Material) -> np.ndarray:
     """---IN DEVELOPMENT---"""
 
-    if NODES_PER_LAYER_CNT < 3:
+    if LAYER_CNT < 2:
+        raise ValueError('At least 2 layers are needed.')
+
+    if NODES_PER_LAYER < 3:
         raise ValueError('Node count must be greater than or equal to 3.')
 
     dZ = DELTA_Z
-
+    
     dZ2 = dZ**2
 
     D1 = M1.thermal_diffusivity
@@ -117,7 +120,7 @@ def mk_conduction_matrix(M1: Material, M2: Material) -> np.ndarray:
 
     K2 = M2.thermal_conductivity
 
-    Z = np.zeros(shape=[node_cnt, node_cnt], dtype=FLOAT64)
+    Z = np.zeros(shape=[NODE_CNT, NODE_CNT], dtype=FLOAT64)
 
     ARR = np.array([1, -2, 1], dtype=FLOAT64)
 
@@ -142,15 +145,35 @@ def mk_conduction_matrix(M1: Material, M2: Material) -> np.ndarray:
     #         case _:
     #             raise ValueError('Illegal index reached.')
 
-    for i in range(0, node_cnt):
+    for i in range(0, NODE_CNT):
         match i:
             case 0:
                 Z[i, i:i + 3] = (D1 / dZ2) * ARR  # fwd
-                
-            case i if i>0 and i < NODES_PER_LAYER_CNT - 1:
+
+            case i if i > 0 and i < NODES_PER_LAYER - 1:
+                Z[i, i - 1:i + 2] = (D1 / dZ2) * ARR
+
+            case i if i == NODES_PER_LAYER - 1:
+                pass
+                print(i)
+
+            case i if i == NODES_PER_LAYER:
                 pass
 
+            case i if i > NODES_PER_LAYER - 2 and i < NODE_CNT - 1:
+                #Z[i, i - 1:i + 2] = (D2 / dZ2) * ARR
+                print(i)
+                
+            case i if i == NODE_CNT - 1:
+                print(i)
+
+            case _:
+                raise ValueError('Illegal index.')
+
+
+
     print(Z)
+    
 
 
 T_AMB = 200
@@ -161,23 +184,23 @@ LAYER_THICKNESS = 1.000
 
 LAYER_CNT = 2
 
-NODES_PER_LAYER_CNT = 3
+NODES_PER_LAYER = 3
 
-node_cnt = LAYER_CNT * (NODES_PER_LAYER_CNT - 1) + 1
+NODE_CNT = LAYER_CNT * NODES_PER_LAYER
 
-DELTA_Z = LAYER_THICKNESS / NODES_PER_LAYER_CNT
+DELTA_Z = LAYER_THICKNESS / NODES_PER_LAYER
 
 M1 = Material('QSR', 1180, 0.1, 1950, 165, None, 295, None)
 
-T = np.array([T_AMB] * node_cnt, dtype=FLOAT64)
+T = np.array([T_AMB] * NODE_CNT, dtype=FLOAT64)
 
-res = np.zeros(shape=[node_cnt, int(1e6)], dtype=FLOAT64)
+res = np.zeros(shape=[NODE_CNT, int(1e6)], dtype=FLOAT64)
 
 # Apply the hot temperature.
-T[0:NODES_PER_LAYER_CNT - 1] = T_HOT
+T[0:NODES_PER_LAYER - 1] = T_HOT
 
 # Set the interface temperature
-T[NODES_PER_LAYER_CNT - 1] = calculate_interface_temperature(M1, M1, T_HOT, T_AMB)
+T[NODES_PER_LAYER - 1] = calculate_interface_temperature(M1, M1, T_HOT, T_AMB)
 
 res[:, 0] = T
 
@@ -187,6 +210,6 @@ print(T)
 
 res = mk_conduction_matrix(M1, M1)
 
-plt.matshow(res)
+# plt.matshow(res)
 
 plt.show()
