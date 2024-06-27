@@ -7,7 +7,7 @@ import numpy as np
 
 FLOAT64 = np.float64
 
-DEBUG = True
+DEBUG = False
 
 
 def cond_match_coeff(K1: float, D1: float, K2: float, D2: float, h: float) -> np.ndarray:
