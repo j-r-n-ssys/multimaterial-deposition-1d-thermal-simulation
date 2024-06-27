@@ -110,48 +110,48 @@ def mk_conduction_matrix(M1: Material, M2: Material) -> np.ndarray:
 
     # Node-to-node distance.
     h0 = DELTA_Z
-    
-    # Node-to-interface distance. 
-    h1 = h2 = h0/2
 
-    # Store params for convenience. 
+    # Node-to-interface distance.
+    h1 = h2 = h0 / 2
+
+    # Store params for convenience.
     D1 = M1.thermal_diffusivity
     K1 = M1.thermal_conductivity
     D2 = M2.thermal_diffusivity
     K2 = M2.thermal_conductivity
 
-    # Initialize the conduction coefficient matrix. 
-    Z = np.zeros(shape=[NODE_CNT, NODE_CNT], dtype=FLOAT64)
+    # Initialize the conduction coefficient matrix.
+    coeff = np.zeros(shape=[NODE_CNT, NODE_CNT], dtype=FLOAT64)
 
-    # Initialize a convenience array for second order finite difference approximation matrix. 
+    # Initialize a convenience array for second order finite difference approximation matrix.
     ARR = np.array([1, -2, 1], dtype=FLOAT64)
 
     for i in range(0, NODE_CNT):
         match i:
             case 0:
-                Z[i, i:i + 3] = (D1 / h0**2) * ARR  # fwd
+                coeff[i, i:i + 3] = (D1 / h0**2) * ARR  # fwd
 
             case i if i > 0 and i < NODES_PER_LAYER - 1:
-                Z[i, i - 1:i + 2] = (D1 / h0**2) * ARR
+                coeff[i, i - 1:i + 2] = (D1 / h0**2) * ARR
 
             case i if i == NODES_PER_LAYER - 1:
-                C1, C2 = hickson.jump_match_coeff(K1, D1, K2, D1, h0, h1, h2, 0)
-                Z[i, i - 1:i + 3] = C1
-                Z[i + 1, i - 1:i + 3] = C2
+                C1, C2 = hickson.jump_match_coeff(K1, D1, K2, D1, h0, h1, h2, 1e10)
+                coeff[i, i - 1:i + 3] = C1
+                coeff[i + 1, i - 1:i + 3] = C2
 
             case i if i == NODES_PER_LAYER:
-                pass # This nodes coefficients were already set in i == NODES_PER_LAYER - 1.  
+                pass  # This nodes coefficients were already set in i == NODES_PER_LAYER - 1.
 
             case i if i > NODES_PER_LAYER - 2 and i < NODE_CNT - 1:
-                Z[i, i - 1:i + 2] = (D2 / h0**2) * ARR
+                coeff[i, i - 1:i + 2] = (D2 / h0**2) * ARR
 
             case i if i == NODE_CNT - 1:
-                Z[i, i - 2:i + 1] = (D2 / h0**2) * ARR
+                coeff[i, i - 2:i + 1] = (D2 / h0**2) * ARR
 
             case _:
                 raise ValueError('Illegal index.')
 
-    print(Z)
+    return coeff
 
 
 T_AMB = 200
@@ -162,17 +162,19 @@ LAYER_THICKNESS = 1.000
 
 LAYER_CNT = 2
 
-NODES_PER_LAYER = 3
+NODES_PER_LAYER = 5
 
 NODE_CNT = LAYER_CNT * NODES_PER_LAYER
 
 DELTA_Z = LAYER_THICKNESS / NODES_PER_LAYER
 
+dt = 0.001
+
 M1 = Material('QSR', 1180, 0.1, 1950, 165, None, 295, None)
 
 T = np.array([T_AMB] * NODE_CNT, dtype=FLOAT64)
 
-res = np.zeros(shape=[NODE_CNT, int(1e6)], dtype=FLOAT64)
+res = np.zeros(shape=[NODE_CNT, int(5e3)], dtype=FLOAT64)
 
 # Apply the hot temperature.
 T[0:NODES_PER_LAYER - 1] = T_HOT
@@ -180,14 +182,34 @@ T[0:NODES_PER_LAYER - 1] = T_HOT
 # Set the interface temperature
 T[NODES_PER_LAYER - 1] = calculate_interface_temperature(M1, M1, T_HOT, T_AMB)
 
+print(T)
+
 res[:, 0] = T
 
 print(res[:, 0:5])
 
 print(T)
 
-res = mk_conduction_matrix(M1, M1)
+coeff = mk_conduction_matrix(M1, M1)
 
 # plt.matshow(res)
 
+# plt.show()
+
+for i in range(1, int(5e3)):
+
+    T = res[:, i - 1]
+
+    res[:, i] = T + dt * np.dot(coeff, T.T)
+
+plt.plot(res[0,:])
+plt.plot(res[1,:])
+plt.plot(res[2,:])
+plt.plot(res[3,:])
+plt.plot(res[4,:])
+plt.plot(res[5,:])
+plt.plot(res[6,:])
+plt.plot(res[7,:])
+plt.plot(res[8,:])
+plt.plot(res[9,:])
 plt.show()
