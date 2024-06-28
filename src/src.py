@@ -93,7 +93,7 @@ def mk_conduction_matrix(M1: Material, M2: Material) -> np.ndarray:
                 C1, C2 = hickson.jump_match_coeff(K1, D1, K2, D1, h0, h1, h2, 1e10)
                 coeff[i, i - 1:i + 3] = C1
                 coeff[i + 1, i - 1:i + 3] = C2
-                
+
             case i if i == NODES_PER_LAYER:
                 pass  # This nodes coefficients were already set in i == NODES_PER_LAYER - 1.
 
@@ -108,6 +108,24 @@ def mk_conduction_matrix(M1: Material, M2: Material) -> np.ndarray:
                 raise ValueError('Illegal index.')
 
     return coeff
+
+
+def mk_convection_matrix(M1: Material, M2: Material) -> np.array:
+    """This function generates a Nx1 matrix of convection coefficients. 
+
+    Args:
+        M1 (Material): _description_
+        M2 (Material): _description_
+
+    Returns:
+        np.array: Convection FD coefficients. 
+    """
+
+    coeff = np.zeros(shape=NODE_CNT, dtype=FLOAT64)
+
+    coeff[0:NODES_PER_LAYER - 1] = CONVECTION_COEFF / (M1.volumetric_heat_capacity * LAYER_THICKNESS)
+
+    coeff[NODES_PER_LAYER:-1] = CONVECTION_COEFF / (M2.volumetric_heat_capacity * LAYER_THICKNESS)
 
 
 T_AMB = 23
@@ -128,12 +146,14 @@ DELTA_Z = LAYER_THICKNESS / NODES_PER_LAYER
 
 print(DELTA_Z)
 
+CONVECTION_COEFF = 10
+
 dt = 0.001
 
 T = np.array([T_AMB] * NODE_CNT, dtype=FLOAT64)
 
 # Apply the hot temperature.
-T[0:NODES_PER_LAYER ] = T_HOT
+T[0:NODES_PER_LAYER] = T_HOT
 
 res = np.zeros(shape=[NODE_CNT, int(5e3)], dtype=FLOAT64)
 
@@ -141,25 +161,27 @@ res[:, 0] = T
 
 np.set_printoptions(precision=6, linewidth=400)
 
-coeff = mk_conduction_matrix(F375M, QSR)
+c_k = mk_conduction_matrix(F375M, QSR)
+
+c_c = mk_convection_matrix(F375M, QSR)
 
 for i in range(1, int(5e3)):
 
     T = res[:, i - 1]
 
-    DT = dt * np.dot(coeff, T.T)
+    res[:, i] = T + (dt * np.dot(c_k, T.T))
     
-    res[:, i] = T + DT
+    
 
-plt.plot(res[0,:])
-plt.plot(res[1,:])
-plt.plot(res[2,:])
-plt.plot(res[3,:])
-plt.plot(res[4,:])
-plt.plot(res[5,:])
-plt.plot(res[6,:])
-plt.plot(res[7,:])
-plt.plot(res[8,:])
-plt.plot(res[9,:])
+plt.plot(res[0, :])
+plt.plot(res[1, :])
+plt.plot(res[2, :])
+plt.plot(res[3, :])
+plt.plot(res[4, :])
+plt.plot(res[5, :])
+plt.plot(res[6, :])
+plt.plot(res[7, :])
+plt.plot(res[8, :])
+plt.plot(res[9, :])
 plt.plot([QSR.extrusion_temp, QSR.extrusion_temp])
 plt.show()
