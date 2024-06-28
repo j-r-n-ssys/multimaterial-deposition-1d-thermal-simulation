@@ -7,7 +7,7 @@ from types import NoneType
 
 import hickson
 
-from material import Material, QSR
+from material import Material, QSR, F375M
 
 STEFAN_BOLTZMANN_CONSTANT = 5.670374419 * 1e-8
 
@@ -94,8 +94,6 @@ def mk_conduction_matrix(M1: Material, M2: Material) -> np.ndarray:
                 coeff[i, i - 1:i + 3] = C1
                 coeff[i + 1, i - 1:i + 3] = C2
                 
-                print(coeff[i,:])
-
             case i if i == NODES_PER_LAYER:
                 pass  # This nodes coefficients were already set in i == NODES_PER_LAYER - 1.
 
@@ -118,7 +116,7 @@ T_HOT = QSR.extrusion_temp
 
 LAYER_THICKNESS = 0.001
 
-LAYER_CNT = 5
+LAYER_CNT = 10
 
 NODES_PER_LAYER = 5
 
@@ -143,7 +141,7 @@ res[:, 0] = T
 
 np.set_printoptions(precision=6, linewidth=400)
 
-coeff = mk_conduction_matrix(QSR, QSR)
+coeff = mk_conduction_matrix(F375M, QSR)
 
 for i in range(1, int(5e3)):
 
@@ -153,14 +151,15 @@ for i in range(1, int(5e3)):
     
     res[:, i] = T + DT
 
-# plt.plot(res[0,:])
-# plt.plot(res[1,:])
-# plt.plot(res[2,:])
-# plt.plot(res[3,:])
+plt.plot(res[0,:])
+plt.plot(res[1,:])
+plt.plot(res[2,:])
+plt.plot(res[3,:])
 plt.plot(res[4,:])
 plt.plot(res[5,:])
-# plt.plot(res[6,:])
-# plt.plot(res[7,:])
-# plt.plot(res[8,:])
-# plt.plot(res[9,:])
+plt.plot(res[6,:])
+plt.plot(res[7,:])
+plt.plot(res[8,:])
+plt.plot(res[9,:])
+plt.plot([QSR.extrusion_temp, QSR.extrusion_temp])
 plt.show()

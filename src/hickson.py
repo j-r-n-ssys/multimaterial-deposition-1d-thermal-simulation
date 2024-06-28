@@ -49,7 +49,7 @@ def cond_match_coeff(K1: float, D1: float, K2: float, D2: float, h: float) -> np
     coeff = np.zeros(shape=5, dtype=FLOAT64)
 
     # Calculate
-    den = (6 * (K1 + K2) * h**2)
+    den = 6 * (K1 + K2) * h**2
 
     print(den)
 
@@ -215,7 +215,8 @@ if __name__ == '__main__':
 
     jump_match_coeff(4, 1, 4, 1, 2, 1, 1, 0)
 
-def calc_interface_temp(E1:float, T1:float, E2:float, T2:float) -> float:
+
+def calc_interface_temp(E1: float, T1: float, E2: float, T2: float) -> float:
     """Calculate the temperature at the interface of two semi-infinite 
 
     Args:
@@ -232,10 +233,11 @@ def calc_interface_temp(E1:float, T1:float, E2:float, T2:float) -> float:
         float: _description_
     """
 
-    if not isinstance(E1, (int,float)) or not isinstance(E1, (int,float)) or not isinstance(E1, (int,float)) or not isinstance(E1, (int,float)):
+    if not isinstance(E1, (int, float)) or not isinstance(E1, (int, float)) or not isinstance(
+            E1, (int, float)) or not isinstance(E1, (int, float)):
         raise TypeError('Temperatures T1 and T2 and effusivities E1 and E2 must be a numerical type')
-    
+
     if E1 <= 0 or E2 <= 0:
         raise ValueError('Effusivities E1 and E2 must be greater than zero.')
-    
-    return (E1 * T1 + E2 * T2) /(E1 + E2)
+
+    return (E1 * T1 + E2 * T2) / (E1 + E2)
