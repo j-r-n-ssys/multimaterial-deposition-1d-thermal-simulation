@@ -90,7 +90,7 @@ def mk_conduction_matrix(M1: Material, M2: Material) -> np.ndarray:
                 coeff[i, i - 1:i + 2] = (D1 / h0**2) * ARR
 
             case i if i == NODES_PER_LAYER - 1:
-                C1, C2 = hickson.jump_match_coeff(K1, D1, K2, D1, h0, h1, h2, 1e10)
+                C1, C2 = hickson.jump_match_coeff(K1, D1, K2, D1, h0, h1, h2, CONTACT_TRANSFER_COEFF)
                 coeff[i, i - 1:i + 3] = C1
                 coeff[i + 1, i - 1:i + 3] = C2
 
@@ -127,7 +127,7 @@ def mk_convection_matrix(M1: Material, M2: Material) -> np.array:
 
     coeff[NODES_PER_LAYER:-1] = CONVECTION_COEFF / (M2.volumetric_heat_capacity * LAYER_THICKNESS)
     
-    return coeff
+    return coeffa
 
 
 T_AMB = 23
@@ -142,13 +142,11 @@ NODES_PER_LAYER = 5
 
 NODE_CNT = LAYER_CNT * NODES_PER_LAYER
 
-print(NODE_CNT)
-
 DELTA_Z = LAYER_THICKNESS / NODES_PER_LAYER
 
-print(DELTA_Z)
+CONVECTION_COEFF = 50
 
-CONVECTION_COEFF = 10
+CONTACT_TRANSFER_COEFF = 1e10
 
 dt = 0.001
 
