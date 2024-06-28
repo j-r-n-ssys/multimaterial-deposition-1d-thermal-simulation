@@ -1,4 +1,7 @@
-"""R. I. Hickson, S. I. Barry, G. N. Mercer, and H. S. Sidhu, “Finite 
+"""This module is a collection of finite difference coefficient generation 
+functions derived by Hickson et al.
+
+R. I. Hickson, S. I. Barry, G. N. Mercer, and H. S. Sidhu, “Finite 
 difference schemes for multilayer diffusion,” Mathematical and computer 
 modelling, vol. 54, no. 1-2, pp. 210-220, Jul. 2011, doi: 
 https://doi.org/10.1016/j.mcm.2011.02.003."""
@@ -17,10 +20,10 @@ def cond_match_coeff(K1: float, D1: float, K2: float, D2: float, h: float) -> np
     node of this FD approximation. 
 
     Args:
-        K1 (float): Body 1 thermal conductivity [W/m-K]. 
+        K1 (float): Body 1 thermal conductivity [W/m-K].
         D1 (float): Body 1 thermal diffusivity [sq.m/s].
         K2 (float): Body 2 thermal conductivity [W/m-K]. 
-        D2 (float): Body 2 thermal diffusivity [sq.m/s]. 
+        D2 (float): Body 2 thermal diffusivity [sq.m/s].
         dZ (float): Finite difference node-to-node distance [m].
 
     Returns:
