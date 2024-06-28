@@ -29,3 +29,8 @@ print(f'shape of b is {b.shape}')
 c = np.dot(a, b.T)
 
 print(c)
+
+
+m = np.array([1,2,3], dtype=FLOAT64)
+
+print((m * m))
