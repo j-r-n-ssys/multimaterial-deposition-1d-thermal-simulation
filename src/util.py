@@ -2,6 +2,7 @@
 
 DEFAULT_PAD_LENGTH = 30
 
+
 def pad_kv_pair_str(key: str, value, length: int = DEFAULT_PAD_LENGTH) -> str:
     """Created a padded key-value equivilency string. 
 
