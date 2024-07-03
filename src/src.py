@@ -1,7 +1,5 @@
 """_missing_docstring_"""
 
-
-
 import logging as lg
 import math
 import matplotlib.pyplot as plt
@@ -12,6 +10,7 @@ import hickson
 from material import Material, QSR
 
 from units import inch_to_millimeter
+from util import pad_kv_pair_str
 
 STEFAN_BOLTZMANN_CONSTANT = 5.670374419 * 1e-8
 
@@ -20,7 +19,7 @@ FLOAT64 = np.float64
 lg.basicConfig(level=lg.INFO)
 
 
-def mk_conduction_matrix(m_1: Material, m_2: Material) -> np.ndarray: #pylint: disable=redefined-outer-name
+def mk_conduction_matrix(m_1: Material, m_2: Material) -> np.ndarray:  #pylint: disable=redefined-outer-name
     """---IN DEVELOPMENT---"""
 
     if LAYER_CNT < 2:
@@ -76,7 +75,7 @@ def mk_conduction_matrix(m_1: Material, m_2: Material) -> np.ndarray: #pylint: d
     return coeff
 
 
-def mk_convection_matrix(m_1: Material, m_2: Material) -> np.array: #pylint: disable=redefined-outer-name
+def mk_convection_matrix(m_1: Material, m_2: Material) -> np.array:  #pylint: disable=redefined-outer-name
     """This function generates a Nx1 matrix of convection coefficients. 
 
     Args:
@@ -100,7 +99,7 @@ def mk_convection_matrix(m_1: Material, m_2: Material) -> np.array: #pylint: dis
     return coeff
 
 
-def solve_system(m_1: Material, m_2: Material, temp: np.ndarray) -> tuple[np.ndarray, np.ndarray]: #pylint: disable=redefined-outer-name
+def solve_system(m_1: Material, m_2: Material, temp: np.ndarray) -> tuple[np.ndarray, np.ndarray]:  #pylint: disable=redefined-outer-name
     """_summary_
 
     Args:
@@ -146,6 +145,21 @@ def solve_system(m_1: Material, m_2: Material, temp: np.ndarray) -> tuple[np.nda
     return time_arr, temp_arr
 
 
+def prep_next_temp_profile(curr_profile: np.ndarray) -> np.ndarray:
+    """_summary_
+
+    Args:
+        curr_profile (np.ndarray): _description_
+
+    Returns:
+        np.ndarray: _description_
+    """
+
+    curr_profile[NODES_PER_LAYER:-1] = curr_profile[0:-NODES_PER_LAYER - 1]
+
+    print(curr_profile)
+
+
 print(' ')
 print(' ')
 
@@ -155,11 +169,13 @@ T_HOT = QSR.extrusion_temp
 
 LAYER_THICKNESS = inch_to_millimeter(0.007)
 
-LAYER_CNT = 10
+LAYER_CNT = 3
 
-NODES_PER_LAYER = 400
+NODES_PER_LAYER = 3
 
-lg.info('layer thickness = %s', LAYER_THICKNESS)
+pad_kv_pair_str('layer thickness', LAYER_THICKNESS)
+
+lg.info(pad_kv_pair_str('layer thickness', LAYER_THICKNESS))
 lg.info('layer count = %s', LAYER_CNT)
 lg.info('nodes per layer = %s', NODES_PER_LAYER)
 
@@ -190,19 +206,10 @@ t, res = solve_system(m_1, m_2, T)
 
 print()
 
-# plt.plot(res[NODES_PER_LAYER - 1 - 4, :])
-# plt.plot(res[NODES_PER_LAYER - 1 - 3, :])
-# plt.plot(res[NODES_PER_LAYER - 1 - 2, :])
-# plt.plot(res[NODES_PER_LAYER - 1 - 1, :])
-# plt.plot(res[NODES_PER_LAYER - 1 - 0, :])
-# plt.plot(res[NODES_PER_LAYER - 1 + 1, :])
-# plt.plot(res[NODES_PER_LAYER - 1 + 2, :])
-# plt.plot(res[NODES_PER_LAYER - 1 + 3, :])
-# plt.plot(res[NODES_PER_LAYER - 1 + 4, :])
-# plt.plot(res[NODES_PER_LAYER - 1 + 5, :])
-
 interface_temp = hickson.calc_interface_temp(m_1.thermal_effusivity, res[NODES_PER_LAYER - 1, :],
                                              m_2.thermal_effusivity, res[NODES_PER_LAYER, :])
+
+prep_next_temp_profile(res[:, -1])
 
 plt.semilogx(t, interface_temp)
 plt.semilogx(t, np.array([m_1.glass_transition] * len(t), dtype=FLOAT64))
