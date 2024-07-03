@@ -9,6 +9,8 @@ https://doi.org/10.1016/j.mcm.2011.02.003."""
 import logging as lg
 import numpy as np
 
+from os.path import basename as get_module_fname
+
 FLOAT64 = np.float64
 
 DEBUG = False
@@ -235,7 +237,7 @@ def calc_interface_temp(e_1: float, t_1: float, e_2: float, t_2: float) -> float
 def main():
     """Main module call."""
 
-    lg.warning('This module (%s) is not intended to be run as standalone module.')
+    lg.warning('Module %s is not intended to be run as standalone module.', get_module_fname(__file__))
 
 
 if __name__ == '__main__':
