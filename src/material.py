@@ -86,9 +86,11 @@ class Material():
 
 ABS = Material('ABS', 1040, 0.209, 1506, 105, None, 260, None)
 
-QSR = Material('QSR', 1180, 10.6, 943, 165, None, 295, None)
+QSR = Material('QSR', 1180, 0.1, 1950, 165, None, 295, None)
 
-F375M = Material('F375M Sinterable', 6212.8, 10.6, 943, 30, 170, 235, None)
+F375M = Material('F375M Sinterable', 6174.2, 10.6, 942.8, -30.0, 170, 235, None)
 
 if __name__ == '__main__':
     lg.warning('Module %s is not intended to be run as standalone module.', get_module_fname(__file__))
+
+    print(QSR.thermal_diffusivity)
