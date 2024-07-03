@@ -99,7 +99,7 @@ def mk_convection_matrix(m_1: Material, m_2: Material) -> np.array:
     return coeff
 
 
-def solve_system(M1: Material, M2: Material, temp: np.ndarray) -> np.ndarray:
+def solve_system(m_1: Material, m_2: Material, temp: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     """_summary_
 
     Args:
@@ -112,35 +112,37 @@ def solve_system(M1: Material, M2: Material, temp: np.ndarray) -> np.ndarray:
     """
 
     # Calculate the time step; see eq. 4 in Basgul1 et al.
-    time_step = 0.9 * (0.5 * (DELTA_Z**2) / max(M1.thermal_diffusivity, M2.thermal_diffusivity))
+    time_step = 0.1 * (0.5 * (DELTA_Z**2) / max(m_1.thermal_diffusivity, m_2.thermal_diffusivity))
 
     lg.info('time step = %s', time_step)
 
     # Calculate the total number of time steps.
-    time_steps = int(math.ceil(TIME / time_step))
+    time_steps = int(math.ceil(TIME_F / time_step))
 
     lg.info('time step cnt = %s', time_steps)
 
     lg.info('simulation time = %s', float(time_steps) * time_step)
 
     # Make the conduction coefficient matrix.
-    coeff_k = mk_conduction_matrix(M1, M2)
+    coeff_k = mk_conduction_matrix(m_1, m_2)
 
     # Make the convection coefficient matrix.
-    coeff_h = mk_convection_matrix(M1, M2)
+    coeff_h = mk_convection_matrix(m_1, m_2)
 
-    res = np.zeros(shape=[NODE_CNT, time_steps], dtype=FLOAT64) #pylint disable=redefined_outer_scope
+    temp_arr = np.zeros(shape=[NODE_CNT, time_steps], dtype=FLOAT64) #pylint disable=redefined_outer_scope
 
     # Store the initial temperature state in the result array.
-    res[:, 0] = temp
+    temp_arr[:, 0] = temp
 
     for i in range(1, time_steps):
 
-        temp = res[:, i - 1]
+        temp = temp_arr[:, i - 1]
 
-        res[:, i] = temp + time_step * (np.dot(coeff_k, temp.T) - coeff_h * (temp - T_AMB))
+        temp_arr[:, i] = temp + time_step * (np.dot(coeff_k, temp.T) - coeff_h * (temp - T_AMB))
 
-    return res
+    time_arr = np.linspace(TIME_0, TIME_F, time_steps)
+
+    return time_arr, temp_arr
 
 
 print(' ')
@@ -166,18 +168,24 @@ DELTA_Z = LAYER_THICKNESS / NODES_PER_LAYER
 
 lg.info('node spacing = %s', DELTA_Z)
 
-CONVECTION_COEFF = 10
+CONVECTION_COEFF = 50
 
 CONTACT_TRANSFER_COEFF = 1e10
 
-TIME = 50.000
+TIME_0 = 0.0
+
+TIME_F = 10.000
 
 T = np.array([T_AMB] * NODE_CNT, dtype=FLOAT64)
 
 # Apply the hot temperature.
 T[0:NODES_PER_LAYER] = T_HOT
 
-res = solve_system(QSR, QSR, T)
+m_1 = QSR
+
+m_2 = F375M
+
+t, res = solve_system(m_1, m_2, T)
 
 print()
 
@@ -192,10 +200,12 @@ print()
 # plt.plot(res[NODES_PER_LAYER - 1 + 4, :])
 # plt.plot(res[NODES_PER_LAYER - 1 + 5, :])
 
-interface_temp = hickson.calc_interface_temp(QSR.thermal_effusivity, res[NODES_PER_LAYER - 1, :],
-                                             QSR.thermal_effusivity, res[NODES_PER_LAYER, :])
+interface_temp = hickson.calc_interface_temp(m_1.thermal_effusivity, res[NODES_PER_LAYER - 1, :],
+                                             m_2.thermal_effusivity, res[NODES_PER_LAYER, :])
 
-plt.plot(interface_temp)
+
+
+plt.semilogx(t, interface_temp)
 
 # plt.plot([QSR.extrusion_temp, QSR.extrusion_temp])
 plt.show()
