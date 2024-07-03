@@ -1,5 +1,10 @@
 """Container for unit conversions."""
 
+import logging as lg
+
+from os.path import basename as get_module_fname
+
+
 def inch_to_millimeter(f: float, n: int = 1) -> float:
     """Convert an argument `f` in inches to millimeters. This function accepts
     an optional argument `n`, which specifies the power. For example, a value of 
@@ -16,3 +21,13 @@ def inch_to_millimeter(f: float, n: int = 1) -> float:
         raise ValueError('n = 0 has no effect.')
 
     return float(f) * (25.4**n)
+
+
+def main():
+    """Main module call."""
+
+    lg.warning('Module %s is not intended to be run as standalone module.', get_module_fname(__file__))
+
+
+if __name__ == '__main__':
+    main()
