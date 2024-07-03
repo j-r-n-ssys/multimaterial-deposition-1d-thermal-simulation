@@ -1,7 +1,9 @@
 """Module to contain the common material class."""
 
+import logging as lg
 import math
 
+from os.path import basename as get_module_fname
 from types import NoneType
 
 
@@ -87,3 +89,6 @@ ABS = Material('ABS', 1040, 0.209, 1506, 105, None, 260, None)
 QSR = Material('QSR', 1180, 10.6, 943, 165, None, 295, None)
 
 F375M = Material('F375M Sinterable', 6212.8, 10.6, 943, 30, 170, 235, None)
+
+if __name__ == '__main__':
+    lg.warning('Module %s is not intended to be run as standalone module.', get_module_fname(__file__))
