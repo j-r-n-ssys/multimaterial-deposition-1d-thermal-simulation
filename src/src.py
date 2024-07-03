@@ -1,9 +1,7 @@
-import json
+import logging as lg
 import math
 import matplotlib.pyplot as plt
 import numpy as np
-
-from types import NoneType
 
 import hickson
 
@@ -12,6 +10,8 @@ from material import Material, QSR, F375M
 STEFAN_BOLTZMANN_CONSTANT = 5.670374419 * 1e-8
 
 FLOAT64 = np.float64
+
+lg.basicConfig(level=lg.INFO)
 
 
 class Later():
@@ -123,65 +123,111 @@ def mk_convection_matrix(M1: Material, M2: Material) -> np.array:
 
     coeff = np.zeros(shape=NODE_CNT, dtype=FLOAT64)
 
-    coeff[0:NODES_PER_LAYER - 1] = CONVECTION_COEFF / (M1.volumetric_heat_capacity * LAYER_THICKNESS)
+    coeff[0:NODES_PER_LAYER - 1] = CONVECTION_COEFF / (M1.volumetric_heat_capacity * DELTA_Z)
 
-    coeff[NODES_PER_LAYER:-1] = CONVECTION_COEFF / (M2.volumetric_heat_capacity * LAYER_THICKNESS)
-    
+    coeff[NODES_PER_LAYER:-1] = CONVECTION_COEFF / (M2.volumetric_heat_capacity * DELTA_Z)
+
     return coeff
 
+
+def solve_system(M1: Material, M2: Material, temp: np.ndarray) -> np.ndarray:
+    """_summary_
+
+    Args:
+        M1 (Material): _description_
+        M2 (Material): _description_
+        temp (np.ndarray): _description_
+
+    Returns:
+        np.ndarray: _description_
+    """
+
+    # Calculate the time step; see eq. 4 in Basgul1 et al.
+    time_step = 0.9 * (0.5 * (DELTA_Z**2) / max(M1.thermal_diffusivity, M2.thermal_diffusivity))
+
+    lg.info(f'time step = {time_step}')
+
+    # Calculate the total number of time steps.
+    time_steps = int(math.ceil(TIME / time_step))
+
+    lg.info(f'time step cnt = {time_steps}')
+
+    lg.info(f'simulation time = {float(time_steps) * time_step}')
+
+    # Make the conduction coefficient matrix.
+    coeff_k = mk_conduction_matrix(M1, M2)
+
+    # Make the convection coefficient matrix.
+    coeff_h = mk_convection_matrix(M1, M2)
+
+    res = np.zeros(shape=[NODE_CNT, time_steps], dtype=FLOAT64)
+
+    # Store the initial temperature profile.
+    T = temp
+
+    # Store the initial temperature state in the result array.
+    res[:, 0] = T
+
+    for i in range(1, time_steps):
+
+        T = res[:, i - 1]
+
+        res[:, i] = T + time_step * (np.dot(coeff_k, T.T) - coeff_h * (T - T_AMB))
+
+    return res
+
+
+print(' ')
+print(' ')
 
 T_AMB = 23
 
 T_HOT = QSR.extrusion_temp
 
-LAYER_THICKNESS = 0.001
+LAYER_THICKNESS = inch_to_millimeter(0.007)
 
 LAYER_CNT = 10
 
-NODES_PER_LAYER = 5
+NODES_PER_LAYER = 400
+
+lg.info(f'layer thickness = {LAYER_THICKNESS}\nlayer count = {LAYER_CNT}\nnodes per layer = {NODES_PER_LAYER}')
 
 NODE_CNT = LAYER_CNT * NODES_PER_LAYER
 
 DELTA_Z = LAYER_THICKNESS / NODES_PER_LAYER
 
+lg.info(f'node spacing = {DELTA_Z}')
+
 CONVECTION_COEFF = 50
 
 CONTACT_TRANSFER_COEFF = 1e10
 
-dt = 0.001
+TIME = 50.000
 
 T = np.array([T_AMB] * NODE_CNT, dtype=FLOAT64)
 
 # Apply the hot temperature.
 T[0:NODES_PER_LAYER] = T_HOT
 
-res = np.zeros(shape=[NODE_CNT, int(5e3)], dtype=FLOAT64)
+res = solve_system(QSR, QSR, T)
 
-res[:, 0] = T
+print()
 
-np.set_printoptions(precision=6, linewidth=400)
+# plt.plot(res[NODES_PER_LAYER - 1 - 4, :])
+# plt.plot(res[NODES_PER_LAYER - 1 - 3, :])
+# plt.plot(res[NODES_PER_LAYER - 1 - 2, :])
+# plt.plot(res[NODES_PER_LAYER - 1 - 1, :])
+# plt.plot(res[NODES_PER_LAYER - 1 - 0, :])
+# plt.plot(res[NODES_PER_LAYER - 1 + 1, :])
+# plt.plot(res[NODES_PER_LAYER - 1 + 2, :])
+# plt.plot(res[NODES_PER_LAYER - 1 + 3, :])
+# plt.plot(res[NODES_PER_LAYER - 1 + 4, :])
+# plt.plot(res[NODES_PER_LAYER - 1 + 5, :])
 
-c_k = mk_conduction_matrix(F375M, QSR)
+interface_temp = hickson.calc_interface_temp(QSR.thermal_effusivity, res[NODES_PER_LAYER - 1, :],
+                                             QSR.thermal_effusivity, res[NODES_PER_LAYER, :])
 
-c_c = mk_convection_matrix(F375M, QSR)
+plt.plot(interface_temp)
 
-for i in range(1, int(5e3)):
-
-    T = res[:, i - 1]
-
-    res[:, i] = T + dt * (np.dot(c_k, T.T) - c_c * (T - T_AMB))
-    
-    
-
-plt.plot(res[0, :])
-plt.plot(res[1, :])
-plt.plot(res[2, :])
-plt.plot(res[3, :])
-plt.plot(res[4, :])
-plt.plot(res[5, :])
-plt.plot(res[6, :])
-plt.plot(res[7, :])
-plt.plot(res[8, :])
-plt.plot(res[9, :])
-plt.plot([QSR.extrusion_temp, QSR.extrusion_temp])
+# plt.plot([QSR.extrusion_temp, QSR.extrusion_temp])
 plt.show()
