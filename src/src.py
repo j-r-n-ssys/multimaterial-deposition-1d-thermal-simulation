@@ -127,7 +127,7 @@ def mk_convection_matrix(M1: Material, M2: Material) -> np.array:
 
     coeff[NODES_PER_LAYER:-1] = CONVECTION_COEFF / (M2.volumetric_heat_capacity * LAYER_THICKNESS)
     
-    return coeffa
+    return coeff
 
 
 T_AMB = 23
