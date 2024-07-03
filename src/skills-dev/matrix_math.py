@@ -34,3 +34,14 @@ print(c)
 m = np.array([1,2,3], dtype=FLOAT64)
 
 print((m * m))
+
+
+print('\n\n')
+
+a = np.array([1,2,3], dtype=FLOAT64)
+
+b = np.array([1,2,3], dtype=FLOAT64)
+
+print(a)
+print(b)
+print(np.divide(a,b))
