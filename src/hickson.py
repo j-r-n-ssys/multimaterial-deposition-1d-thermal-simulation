@@ -12,6 +12,8 @@ FLOAT64 = np.float64
 
 DEBUG = False
 
+NUMERICAL_TYPES = (int, float)
+
 
 def cond_match_coeff(k_1: float, d_1: float, k_2: float, d_2: float, h: float) -> np.ndarray:
     """Calculate the second order finite difference (FD) approximation 
@@ -30,22 +32,19 @@ def cond_match_coeff(k_1: float, d_1: float, k_2: float, d_2: float, h: float) -
         np.ndarray: Finite difference (FD) approximation coefficients.
     """
 
-    if not isinstance(k_1, (int, float)) or not isinstance(k_1, (int, float)):
+    if not isinstance(k_1, NUMERICAL_TYPES) or not isinstance(k_1, NUMERICAL_TYPES):
         raise TypeError('Conducitivities K1 and K2 must be a numerical type.')
-
-    if k_1 <= 0 or k_2 <= 0:
+    elif k_1 <= 0 or k_2 <= 0:
         raise ValueError('Conducitivties K1 and K2 must be greater than zero.')
 
-    if not isinstance(d_1, (int, float)) or not isinstance(d_2, (int, float)):
+    if not isinstance(d_1, NUMERICAL_TYPES) or not isinstance(d_2, NUMERICAL_TYPES):
         raise TypeError('Diffusivities D1 and D2 must be a numerical type.')
-
-    if d_1 <= 0 or d_2 <= 0:
+    elif d_1 <= 0 or d_2 <= 0:
         raise ValueError('Diffusivities D1 and D2 must be greater than zero.')
 
-    if not isinstance(h, (int, float)):
+    if not isinstance(h, NUMERICAL_TYPES):
         raise TypeError('Node-to-node distance h must be a numerical type.')
-
-    if h <= 0:
+    elif h <= 0:
         raise ValueError('Node-to-node distance h must be greater than zero.')
 
     # Initialize the 5 x 1 coefficient matrix.
@@ -103,37 +102,32 @@ def jump_match_coeff(k_1: float, d_1: float, k_2: float, d_2: float, h0: float, 
         print('')
         print('')
 
-    if not isinstance(k_1, (int, float)) or not isinstance(k_1, (int, float)):
+    if not isinstance(k_1, NUMERICAL_TYPES) or not isinstance(k_1, NUMERICAL_TYPES):
         raise TypeError('Conducitivities K1 and K2 must be a numerical type.')
-
-    if k_1 <= 0 or k_2 <= 0:
+    elif k_1 <= 0 or k_2 <= 0:
         raise ValueError('Conducitivties K1 and K2 must be greater than zero.')
 
-    if not isinstance(d_1, (int, float)) or not isinstance(d_2, (int, float)):
+    if not isinstance(d_1, NUMERICAL_TYPES) or not isinstance(d_2, NUMERICAL_TYPES):
         raise TypeError('Diffusivities D1 and D2 must be a numerical type.')
-
-    if d_1 <= 0 or d_2 <= 0:
+    elif d_1 <= 0 or d_2 <= 0:
         raise ValueError('Diffusivities D1 and D2 must be greater than zero.')
 
-    if not isinstance(h0, (int, float)):
+    if not isinstance(h0, NUMERICAL_TYPES):
         raise TypeError('Node-to-node distnce h0 must be a numerical type.')
-
-    if h0 <= 0:
+    elif h0 <= 0:
         raise ValueError('Node-to-node distance h0 must be greater than zero.')
 
-    if not isinstance(h1, (int, float)) or not isinstance(h2, (int, float)):
+    if not isinstance(h1, NUMERICAL_TYPES) or not isinstance(h2, NUMERICAL_TYPES):
         raise TypeError('Node-to-interface distance h1 and h2 must be a numerical type.')
-
-    if h1 <= 0 or h2 <= 0:
+    elif h1 <= 0 or h2 <= 0:
         raise ValueError('Node-to-interface distances h1 and h2 must be greater than zero.')
 
     if (h1 + h2) != h0:
         raise ValueError('The sume of node-to-interface distances h1 and h2 must be equal node-to-node distance h0')
 
-    if not isinstance(H, (int, float)):
+    if not isinstance(H, NUMERICAL_TYPES):
         raise TypeError('Contact transfer coefficient H must be a numerical type.')
-
-    if H < 0:
+    elif H < 0:
         raise TypeError('Contact transfer coefficient H must be greater than or equal to zero.')
 
     arr_m = np.zeros(shape=4, dtype=FLOAT64)
@@ -214,13 +208,8 @@ def jump_match_coeff(k_1: float, d_1: float, k_2: float, d_2: float, h0: float, 
     return arr_m, arr_p
 
 
-if __name__ == '__main__':
-
-    jump_match_coeff(4, 1, 4, 1, 2, 1, 1, 0)
-
-
 def calc_interface_temp(e_1: float, t_1: float, e_2: float, t_2: float) -> float:
-    """Calculate the temperature at the interface of two semi-infinite 
+    """Calculate the temperature at the interface of two semi-infinite bodies.
 
     Args:
         e_1 (float): Body 1 effusivity [W-sqrt(s)/sq.m-K].
@@ -229,14 +218,18 @@ def calc_interface_temp(e_1: float, t_1: float, e_2: float, t_2: float) -> float
         t_2 (float): Body 2 temperature [degC].
 
     Returns:
-        float: _description_
+        float: Interface temperature.
     """
 
-    if not isinstance(e_1, (int, float)) or not isinstance(e_1, (int, float)) or not isinstance(
-            e_1, (int, float)) or not isinstance(e_1, (int, float)):
-        raise TypeError('Temperatures T1 and T2 and effusivities E1 and E2 must be a numerical type')
-
-    if e_1 <= 0 or e_2 <= 0:
+    if not isinstance(e_1, NUMERICAL_TYPES) or not isinstance(e_2, NUMERICAL_TYPES):
+        raise TypeError('Effusivities e_1 and e_2 must be a numerical type')
+    elif not isinstance(t_1, NUMERICAL_TYPES) or not isinstance(t_2, NUMERICAL_TYPES):
+        raise TypeError('Temperatures t_1 and t_2 must be a numerical type')
+    elif e_1 <= 0 or e_2 <= 0:
         raise ValueError('Effusivities E1 and E2 must be greater than zero.')
 
     return (e_1 * t_1 + e_2 * t_2) / (e_1 + e_2)
+
+
+if __name__ == '__main__':
+    pass
