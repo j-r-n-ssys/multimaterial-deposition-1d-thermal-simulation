@@ -6,6 +6,7 @@ difference schemes for multilayer diffusion,” Mathematical and computer
 modelling, vol. 54, no. 1-2, pp. 210-220, Jul. 2011, doi: 
 https://doi.org/10.1016/j.mcm.2011.02.003."""
 
+import logging as lg
 import numpy as np
 
 FLOAT64 = np.float64
@@ -223,13 +224,19 @@ def calc_interface_temp(e_1: float, t_1: float, e_2: float, t_2: float) -> float
 
     if not isinstance(e_1, NUMERICAL_TYPES) or not isinstance(e_2, NUMERICAL_TYPES):
         raise TypeError('Effusivities e_1 and e_2 must be a numerical type')
-    elif not isinstance(t_1, NUMERICAL_TYPES) or not isinstance(t_2, NUMERICAL_TYPES):
-        raise TypeError('Temperatures t_1 and t_2 must be a numerical type')
+    #elif not isinstance(t_1, NUMERICAL_TYPES) or not isinstance(t_2, NUMERICAL_TYPES):
+    #    raise TypeError('Temperatures t_1 and t_2 must be a numerical type')
     elif e_1 <= 0 or e_2 <= 0:
         raise ValueError('Effusivities E1 and E2 must be greater than zero.')
 
     return (e_1 * t_1 + e_2 * t_2) / (e_1 + e_2)
 
 
+def main():
+    """Main module call."""
+
+    lg.warning('This module (%s) is not intended to be run as standalone module.')
+
+
 if __name__ == '__main__':
-    pass
+    main()
