@@ -8,6 +8,7 @@ import numpy as np
 import hickson
 
 from material import Material, QSR, F375M
+from units import inch_to_millimeter
 
 STEFAN_BOLTZMANN_CONSTANT = 5.670374419 * 1e-8
 
@@ -16,24 +17,6 @@ FLOAT64 = np.float64
 lg.basicConfig(level=lg.INFO)
 
 
-def inch_to_millimeter(f: float, n: int = 1) -> float:
-    """Convert an argument `f` in inches to millimeters. This function accepts
-    an optional argument `n`, which specifies the power. For example, a value of 
-    `n = 1` converts the argument from inches to millimeters. A value of `n = 3` 
-    converts the argument from cubic inches to cubic millimeters. This function
-    can also be used to do the reverse conversion, as, for example, `n = -1` 
-    converts the argument from millimeteres to inches. """
-
-    if not isinstance(f, (float, int)):
-        raise TypeError('Argument f must be of type int or float).')
-
-    if not isinstance(n, int):
-        raise TypeError('Argument n must be type int.')
-
-    if f == 0:
-        raise ValueError('n = 0 has no effect.')
-
-    return float(f) * (25.4**n)
 
 
 def mk_conduction_matrix(m_1: Material, m_2: Material) -> np.ndarray:
