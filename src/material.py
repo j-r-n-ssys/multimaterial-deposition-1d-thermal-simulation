@@ -4,6 +4,7 @@ import math
 
 from types import NoneType
 
+
 class Material():
     """This object represents a material."""
 
@@ -77,9 +78,10 @@ class Material():
     def thermal_diffusivity(self) -> float:
         """Thermal diffusivity [sq.m/s]."""
         return self.thermal_conductivity / self.volumetric_heat_capacity  # [m2/s]
-    
+
+
 # https://thermtest.com/thermal-resources/materials-database
-    
+
 ABS = Material('ABS', 1040, 0.209, 1506, 105, None, 260, None)
 
 QSR = Material('QSR', 1180, 10.6, 943, 165, None, 295, None)

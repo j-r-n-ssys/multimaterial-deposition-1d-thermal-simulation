@@ -1,4 +1,6 @@
-"""_missing_docstring_""" 
+"""_missing_docstring_"""
+
+
 
 import logging as lg
 import math
@@ -7,7 +9,8 @@ import numpy as np
 
 import hickson
 
-from material import Material, QSR, F375M
+from material import Material, QSR
+
 from units import inch_to_millimeter
 
 STEFAN_BOLTZMANN_CONSTANT = 5.670374419 * 1e-8
@@ -17,9 +20,7 @@ FLOAT64 = np.float64
 lg.basicConfig(level=lg.INFO)
 
 
-
-
-def mk_conduction_matrix(m_1: Material, m_2: Material) -> np.ndarray:
+def mk_conduction_matrix(m_1: Material, m_2: Material) -> np.ndarray: #pylint: disable=redefined-outer-name
     """---IN DEVELOPMENT---"""
 
     if LAYER_CNT < 2:
@@ -75,7 +76,7 @@ def mk_conduction_matrix(m_1: Material, m_2: Material) -> np.ndarray:
     return coeff
 
 
-def mk_convection_matrix(m_1: Material, m_2: Material) -> np.array:
+def mk_convection_matrix(m_1: Material, m_2: Material) -> np.array: #pylint: disable=redefined-outer-name
     """This function generates a Nx1 matrix of convection coefficients. 
 
     Args:
@@ -99,7 +100,7 @@ def mk_convection_matrix(m_1: Material, m_2: Material) -> np.array:
     return coeff
 
 
-def solve_system(m_1: Material, m_2: Material, temp: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+def solve_system(m_1: Material, m_2: Material, temp: np.ndarray) -> tuple[np.ndarray, np.ndarray]: #pylint: disable=redefined-outer-name
     """_summary_
 
     Args:
@@ -129,7 +130,7 @@ def solve_system(m_1: Material, m_2: Material, temp: np.ndarray) -> tuple[np.nda
     # Make the convection coefficient matrix.
     coeff_h = mk_convection_matrix(m_1, m_2)
 
-    temp_arr = np.zeros(shape=[NODE_CNT, time_steps], dtype=FLOAT64) #pylint disable=redefined_outer_scope
+    temp_arr = np.zeros(shape=[NODE_CNT, time_steps], dtype=FLOAT64)  #pylint disable=redefined_outer_scope
 
     # Store the initial temperature state in the result array.
     temp_arr[:, 0] = temp
@@ -158,7 +159,7 @@ LAYER_CNT = 10
 
 NODES_PER_LAYER = 400
 
-lg.info('layer thickness = %s',LAYER_THICKNESS)
+lg.info('layer thickness = %s', LAYER_THICKNESS)
 lg.info('layer count = %s', LAYER_CNT)
 lg.info('nodes per layer = %s', NODES_PER_LAYER)
 
@@ -183,7 +184,7 @@ T[0:NODES_PER_LAYER] = T_HOT
 
 m_1 = QSR
 
-m_2 = F375M
+m_2 = QSR
 
 t, res = solve_system(m_1, m_2, T)
 
@@ -203,9 +204,7 @@ print()
 interface_temp = hickson.calc_interface_temp(m_1.thermal_effusivity, res[NODES_PER_LAYER - 1, :],
                                              m_2.thermal_effusivity, res[NODES_PER_LAYER, :])
 
-
-
 plt.semilogx(t, interface_temp)
-
+plt.semilogx(t, np.array([m_1.glass_transition] * len(t), dtype=FLOAT64))
 # plt.plot([QSR.extrusion_temp, QSR.extrusion_temp])
 plt.show()
