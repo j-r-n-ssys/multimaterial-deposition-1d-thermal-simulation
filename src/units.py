@@ -23,11 +23,5 @@ def inch_to_millimeter(f: float, n: int = 1) -> float:
     return float(f) * (25.4**n)
 
 
-def main():
-    """Main module call."""
-
-    lg.warning('Module %s is not intended to be run as standalone module.', get_module_fname(__file__))
-
-
 if __name__ == '__main__':
-    main()
+    lg.warning('Module %s is not intended to be run as standalone module.', get_module_fname(__file__))
