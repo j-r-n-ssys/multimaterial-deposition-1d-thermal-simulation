@@ -1,16 +1,16 @@
-from typing import Any
+"""Utility module."""
 
 
 def pad_kv_pair_str(key: str, value, length: int = 30) -> str:
-    """print a padded 
+    """Created a padded key-value equivilency string. 
 
     Args:
-        key (str): _description_
-        value (_type_): _description_
+        key (str): K-V key
+        value: K-V value. 
         length (int): Total string length.
 
     Returns:
-        str: _description_
+        str: Padded key-value string.
     """
 
     if not isinstance(length, int):
