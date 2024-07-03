@@ -7,7 +7,7 @@ import numpy as np
 
 import hickson
 
-from material import Material, QSR
+from material import Material, QSR, F375M
 
 from units import inch_to_millimeter
 from util import pad_kv_pair_str
@@ -50,6 +50,8 @@ def mk_conduction_matrix(m_1: Material, m_2: Material) -> np.ndarray:  #pylint: 
         match i:
             case 0:
                 coeff[i, i:i + 3] = (d_1 / h0**2) * fd_arr  # fwd
+                
+                print(d_1 / h0**2)
 
             case i if i > 0 and i < NODES_PER_LAYER - 1:
                 coeff[i, i - 1:i + 2] = (d_1 / h0**2) * fd_arr
@@ -99,7 +101,7 @@ def mk_convection_matrix(m_1: Material, m_2: Material) -> np.array:  #pylint: di
     return coeff
 
 
-def solve_system(m_1: Material, m_2: Material, temp: np.ndarray) -> tuple[np.ndarray, np.ndarray]:  #pylint: disable=redefined-outer-name
+def solve_system(m_1: Material, m_2: Material, temp: np.ndarray, time_step:float = None) -> tuple[np.ndarray, np.ndarray]:  #pylint: disable=redefined-outer-name, disable=line-too-long
     """_summary_
 
     Args:
@@ -110,18 +112,25 @@ def solve_system(m_1: Material, m_2: Material, temp: np.ndarray) -> tuple[np.nda
     Returns:
         np.ndarray: _description_
     """
+    
+    if time_step is None:
+        time_step = (0.5 * (DELTA_Z**2) / max(m_1.thermal_diffusivity, m_2.thermal_diffusivity)) # Calculate the time step; see eq. 4 in Basgul1 et al.
+    else:
+        
+        
+        
+        if max(m_1.thermal_diffusivity, m_2.thermal_diffusivity) * time_step / DELTA_Z**2 > 0.5:
+            lg.warning('Time step is too large to guarentee simulation stability.')
+            print(time_step * max(m_1.thermal_diffusivity, m_2.thermal_diffusivity) / DELTA_Z**2)
 
-    # Calculate the time step; see eq. 4 in Basgul1 et al.
-    time_step = 0.1 * (0.5 * (DELTA_Z**2) / max(m_1.thermal_diffusivity, m_2.thermal_diffusivity))
-
-    lg.info('time step = %s', time_step)
+    lg.info(pad_kv_pair_str('time step', time_step))
 
     # Calculate the total number of time steps.
     time_steps = int(math.ceil(TIME_F / time_step))
 
-    lg.info('time step cnt = %s', time_steps)
+    lg.info(pad_kv_pair_str('time step cnt', time_steps))
 
-    lg.info('simulation time = %s', float(time_steps) * time_step)
+    lg.info(pad_kv_pair_str('simulation time', float(time_steps) * time_step))
 
     # Make the conduction coefficient matrix.
     coeff_k = mk_conduction_matrix(m_1, m_2)
@@ -157,35 +166,34 @@ def prep_next_temp_profile(curr_profile: np.ndarray) -> np.ndarray:
 
     curr_profile[NODES_PER_LAYER:-1] = curr_profile[0:-NODES_PER_LAYER - 1]
 
-    print(curr_profile)
 
 
 print(' ')
 print(' ')
 
-T_AMB = 23
+T_AMB = 115
 
 T_HOT = QSR.extrusion_temp
 
-LAYER_THICKNESS = inch_to_millimeter(0.007)
+LAYER_THICKNESS = 1e-3 * inch_to_millimeter(0.010)
 
-LAYER_CNT = 3
+LAYER_CNT = 10
 
-NODES_PER_LAYER = 3
+NODES_PER_LAYER = 10
 
 pad_kv_pair_str('layer thickness', LAYER_THICKNESS)
 
 lg.info(pad_kv_pair_str('layer thickness', LAYER_THICKNESS))
-lg.info('layer count = %s', LAYER_CNT)
-lg.info('nodes per layer = %s', NODES_PER_LAYER)
+lg.info(pad_kv_pair_str('layer count', LAYER_CNT))
+lg.info(pad_kv_pair_str('nodes per layer', NODES_PER_LAYER))
 
 NODE_CNT = LAYER_CNT * NODES_PER_LAYER
 
 DELTA_Z = LAYER_THICKNESS / NODES_PER_LAYER
 
-lg.info('node spacing = %s', DELTA_Z)
+lg.info(pad_kv_pair_str('node spacing', DELTA_Z))
 
-CONVECTION_COEFF = 50
+CONVECTION_COEFF = 200
 
 CONTACT_TRANSFER_COEFF = 1e10
 
@@ -211,7 +219,14 @@ interface_temp = hickson.calc_interface_temp(m_1.thermal_effusivity, res[NODES_P
 
 prep_next_temp_profile(res[:, -1])
 
+plt.semilogx(t, res[0,:])
 plt.semilogx(t, interface_temp)
 plt.semilogx(t, np.array([m_1.glass_transition] * len(t), dtype=FLOAT64))
+plt.semilogx(t, np.array([T_AMB] * len(t), dtype=FLOAT64))
 # plt.plot([QSR.extrusion_temp, QSR.extrusion_temp])
+
 plt.show()
+
+print(QSR.thermal_diffusivity)
+
+print(F375M.thermal_diffusivity)
