@@ -13,33 +13,33 @@ FLOAT64 = np.float64
 DEBUG = False
 
 
-def cond_match_coeff(K1: float, D1: float, K2: float, D2: float, h: float) -> np.ndarray:
+def cond_match_coeff(k_1: float, d_1: float, k_2: float, d_2: float, h: float) -> np.ndarray:
     """Calculate the second order finite difference (FD) approximation 
     coefficients at the two-body interface using conductivity matching. A 
     fundamental assumption is that the interface is co-located with the middle
     node of this FD approximation. 
 
     Args:
-        K1 (float): Body 1 thermal conductivity [W/m-K].
-        D1 (float): Body 1 thermal diffusivity [sq.m/s].
-        K2 (float): Body 2 thermal conductivity [W/m-K]. 
-        D2 (float): Body 2 thermal diffusivity [sq.m/s].
-        dZ (float): Finite difference node-to-node distance [m].
+        k_1 (float): Body 1 thermal conductivity [W/m-K].
+        d_1 (float): Body 1 thermal diffusivity [sq.m/s].
+        k_2 (float): Body 2 thermal conductivity [W/m-K]. 
+        d_2 (float): Body 2 thermal diffusivity [sq.m/s].
+        h (float): Finite difference node-to-node distance [m].
 
     Returns:
         np.ndarray: Finite difference (FD) approximation coefficients.
     """
 
-    if not isinstance(K1, (int, float)) or not isinstance(K1, (int, float)):
+    if not isinstance(k_1, (int, float)) or not isinstance(k_1, (int, float)):
         raise TypeError('Conducitivities K1 and K2 must be a numerical type.')
 
-    if K1 <= 0 or K2 <= 0:
+    if k_1 <= 0 or k_2 <= 0:
         raise ValueError('Conducitivties K1 and K2 must be greater than zero.')
 
-    if not isinstance(D1, (int, float)) or not isinstance(D2, (int, float)):
+    if not isinstance(d_1, (int, float)) or not isinstance(d_2, (int, float)):
         raise TypeError('Diffusivities D1 and D2 must be a numerical type.')
 
-    if D1 <= 0 or D2 <= 0:
+    if d_1 <= 0 or d_2 <= 0:
         raise ValueError('Diffusivities D1 and D2 must be greater than zero.')
 
     if not isinstance(h, (int, float)):
@@ -52,17 +52,17 @@ def cond_match_coeff(K1: float, D1: float, K2: float, D2: float, h: float) -> np
     coeff = np.zeros(shape=5, dtype=FLOAT64)
 
     # Calculate
-    den = 6 * (K1 + K2) * h**2
+    den = 6 * (k_1 + k_2) * h**2
 
     print(den)
 
-    coeff[0] = ((2 * K1 + 3 * K2) * D1 - D2 * K1) / den
+    coeff[0] = ((2 * k_1 + 3 * k_2) * d_1 - d_2 * k_1) / den
 
-    coeff[1] = (4 * D2 * K1 - 2 * (K1 + 3 * K2) * D1) / den
+    coeff[1] = (4 * d_2 * k_1 - 2 * (k_1 + 3 * k_2) * d_1) / den
 
-    coeff[3] = (4 * D1 * K2 - 2 * (3 * K1 + K2) * D2) / den
+    coeff[3] = (4 * d_1 * k_2 - 2 * (3 * k_1 + k_2) * d_2) / den
 
-    coeff[4] = ((3 * K1 + 2 * K2) * D2 - D1 * K2) / den
+    coeff[4] = ((3 * k_1 + 2 * k_2) * d_2 - d_1 * k_2) / den
 
     if DEBUG:
         print(coeff)
@@ -70,17 +70,17 @@ def cond_match_coeff(K1: float, D1: float, K2: float, D2: float, h: float) -> np
     return coeff
 
 
-def jump_match_coeff(K1: float, D1: float, K2: float, D2: float, h0: float, h1: float, h2: float,
+def jump_match_coeff(k_1: float, d_1: float, k_2: float, d_2: float, h0: float, h1: float, h2: float,
                      H: float) -> tuple[np.ndarray, np.ndarray]:
     """Calculate the second order finite difference (FD) approximation 
     coefficients on both sides of a two-body interface using jump matching. A 
     fundamental assumption is that the interface is not co-located with a node.
 
     Args:
-        K1 (float): Body 1 thermal conductivity [W/m-K]. 
-        D1 (float): Body 1 thermal diffusivity [sq.m/s].
-        K2 (float): Body 2 thermal conductivity [W/m-K]. 
-        D2 (float): Body 2 thermal diffusivity [sq.m/s]. 
+        k_1 (float): Body 1 thermal conductivity [W/m-K]. 
+        d_1 (float): Body 1 thermal diffusivity [sq.m/s].
+        k_2 (float): Body 2 thermal conductivity [W/m-K]. 
+        d_2 (float): Body 2 thermal diffusivity [sq.m/s]. 
         h0 (float): Node-to-node distance [m].
         h1 (float): Body 1 nearest-node-to-interface distance [m]. 
         h2 (float): Body 2 interface-to-nearest-node distance [m]
@@ -103,16 +103,16 @@ def jump_match_coeff(K1: float, D1: float, K2: float, D2: float, h0: float, h1: 
         print('')
         print('')
 
-    if not isinstance(K1, (int, float)) or not isinstance(K1, (int, float)):
+    if not isinstance(k_1, (int, float)) or not isinstance(k_1, (int, float)):
         raise TypeError('Conducitivities K1 and K2 must be a numerical type.')
 
-    if K1 <= 0 or K2 <= 0:
+    if k_1 <= 0 or k_2 <= 0:
         raise ValueError('Conducitivties K1 and K2 must be greater than zero.')
 
-    if not isinstance(D1, (int, float)) or not isinstance(D2, (int, float)):
+    if not isinstance(d_1, (int, float)) or not isinstance(d_2, (int, float)):
         raise TypeError('Diffusivities D1 and D2 must be a numerical type.')
 
-    if D1 <= 0 or D2 <= 0:
+    if d_1 <= 0 or d_2 <= 0:
         raise ValueError('Diffusivities D1 and D2 must be greater than zero.')
 
     if not isinstance(h0, (int, float)):
@@ -148,21 +148,21 @@ def jump_match_coeff(K1: float, D1: float, K2: float, D2: float, h0: float, h1: 
 
     arr_p_2 = np.zeros(shape=4, dtype=FLOAT64)
 
-    lam = h0 * (((h0 + 2 * h1) * (h0 + h2) * h2 * K1 + (h0 + h1) * (h0 + 2 * h2) * h1 * K2) * H + (h0 + 2 * h1) *
-                (h0 + 2 * h2) * K1 * K2)
+    lam = h0 * (((h0 + 2 * h1) * (h0 + h2) * h2 * k_1 + (h0 + h1) * (h0 + 2 * h2) * h1 * k_2) * H + (h0 + 2 * h1) *
+                (h0 + 2 * h2) * k_1 * k_2)
 
     #      0       -2        1
     #      1       -1        1
     #      2        1        2
     #      3        2        2
 
-    arr_m_1[0] = (-1 * ((h0 + h2) * (h2 * H + K2) + h2 * K2) * h1**2 * K1) / lam
+    arr_m_1[0] = (-1 * ((h0 + h2) * (h2 * H + k_2) + h2 * k_2) * h1**2 * k_1) / lam
 
-    arr_m_1[1] = (((h0 + h2) * (h2 * H + K2) + h2 * K2) * (h0 + h1)**2 * K1) / lam
+    arr_m_1[1] = (((h0 + h2) * (h2 * H + k_2) + h2 * k_2) * (h0 + h1)**2 * k_1) / lam
 
-    arr_m_1[2] = (h1 * (h0 + h1) * (h0 + h2)**2 * H * K2) / lam
+    arr_m_1[2] = (h1 * (h0 + h1) * (h0 + h2)**2 * H * k_2) / lam
 
-    arr_m_1[3] = (-1 * h1 * h2**2 * (h0 + h1) * H * K2) / lam
+    arr_m_1[3] = (-1 * h1 * h2**2 * (h0 + h1) * H * k_2) / lam
 
     if DEBUG:
         print(f'arr_m_1: {arr_m_1}\n')
@@ -176,7 +176,7 @@ def jump_match_coeff(K1: float, D1: float, K2: float, D2: float, h0: float, h1: 
     if DEBUG:
         print(f'arr_m_2: {arr_m_2}\n')
 
-    arr_m = D1 * (h0 * arr_m_1 / den + arr_m_2)
+    arr_m = d_1 * (h0 * arr_m_1 / den + arr_m_2)
 
     if DEBUG:
         print(f'arr_m:   {arr_m}\n')
@@ -186,13 +186,13 @@ def jump_match_coeff(K1: float, D1: float, K2: float, D2: float, h0: float, h1: 
     #      2        1        2
     #      3        2        2
 
-    arr_p_1[0] = (-1 * h1**2 * h2 * (h0 + h2) * H * K1) / lam
+    arr_p_1[0] = (-1 * h1**2 * h2 * (h0 + h2) * H * k_1) / lam
 
-    arr_p_1[1] = (h2 * (h0 + h1)**2 * (h0 + h2) * H * K1) / lam
+    arr_p_1[1] = (h2 * (h0 + h1)**2 * (h0 + h2) * H * k_1) / lam
 
-    arr_p_1[2] = (((h0 + h1) * (h1 * H + K1) + h1 * K1) * (h0 + h2)**2 * K2) / lam
+    arr_p_1[2] = (((h0 + h1) * (h1 * H + k_1) + h1 * k_1) * (h0 + h2)**2 * k_2) / lam
 
-    arr_p_1[3] = (-1 * ((h0 + h1) * (h1 * H + K1) + h1 * K1) * h2**2 * K2) / lam
+    arr_p_1[3] = (-1 * ((h0 + h1) * (h1 * H + k_1) + h1 * k_1) * h2**2 * k_2) / lam
 
     if DEBUG:
         print(f'arr_p_1: {arr_p_1}\n')
@@ -206,7 +206,7 @@ def jump_match_coeff(K1: float, D1: float, K2: float, D2: float, h0: float, h1: 
     if DEBUG:
         print(f'arr_p_2: {arr_p_2}\n')
 
-    arr_p = D2 * (h0 * arr_p_1 / den + arr_p_2)
+    arr_p = d_2 * (h0 * arr_p_1 / den + arr_p_2)
 
     if DEBUG:
         print(f'arr_p:   {arr_p}\n')
@@ -219,28 +219,24 @@ if __name__ == '__main__':
     jump_match_coeff(4, 1, 4, 1, 2, 1, 1, 0)
 
 
-def calc_interface_temp(E1: float, T1: float, E2: float, T2: float) -> float:
+def calc_interface_temp(e_1: float, t_1: float, e_2: float, t_2: float) -> float:
     """Calculate the temperature at the interface of two semi-infinite 
 
     Args:
-        E1 (float): Body 1 effusivity [W-sqrt(s)/sq.m-K].
-        T1 (float): Body 1 temperature [degC].
-        E2 (float): Body 2 effusivity [W-sqrt(s)/sq.m-K].
-        T2 (float): Body 2 temperature [degC].
-
-    Raises:
-        TypeError: _description_
-        ValueError: _description_
+        e_1 (float): Body 1 effusivity [W-sqrt(s)/sq.m-K].
+        t_1 (float): Body 1 temperature [degC].
+        e_2 (float): Body 2 effusivity [W-sqrt(s)/sq.m-K].
+        t_2 (float): Body 2 temperature [degC].
 
     Returns:
         float: _description_
     """
 
-    if not isinstance(E1, (int, float)) or not isinstance(E1, (int, float)) or not isinstance(
-            E1, (int, float)) or not isinstance(E1, (int, float)):
+    if not isinstance(e_1, (int, float)) or not isinstance(e_1, (int, float)) or not isinstance(
+            e_1, (int, float)) or not isinstance(e_1, (int, float)):
         raise TypeError('Temperatures T1 and T2 and effusivities E1 and E2 must be a numerical type')
 
-    if E1 <= 0 or E2 <= 0:
+    if e_1 <= 0 or e_2 <= 0:
         raise ValueError('Effusivities E1 and E2 must be greater than zero.')
 
-    return (E1 * T1 + E2 * T2) / (E1 + E2)
+    return (e_1 * t_1 + e_2 * t_2) / (e_1 + e_2)
