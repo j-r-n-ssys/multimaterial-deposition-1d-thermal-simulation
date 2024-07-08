@@ -66,8 +66,7 @@ def mk_conduction_matrix(m_1: Material, m_2: Material) -> np.ndarray:  #pylint: 
                 coeff[i, i - 1:i + 2] = (d_2 / h0**2) * fd_arr
 
             case i if i == NODE_CNT - 1:
-                pass
-                #coeff[i, i - 2:i + 1] = (D2 / h0**2) * ARR
+                pass # coeff[i, i - 2:i + 1] = (d_2 / h0**2) * fd_arr
 
             case _:
                 raise ValueError('Illegal index.')
@@ -119,7 +118,7 @@ def solve_system(
 
     if time_step is None:
         # Calculate the time step; see eq. 4 in Basgul1 et al.
-        time_step = 0.95 * (0.5 * DELTA_Z**2 / max_thermal_diffusivity)
+        time_step = 0.5 * (0.5 * DELTA_Z**2 / max_thermal_diffusivity)
     else:
         if max_thermal_diffusivity * time_step / DELTA_Z**2 > 0.5:
             lg.warning(
@@ -170,12 +169,41 @@ def prep_next_temp_profile(curr_profile: np.ndarray) -> np.ndarray:
     curr_profile[NODES_PER_LAYER:-1] = curr_profile[0:-NODES_PER_LAYER - 1]
 
 
+def get_interface_temperature(m_1: Material,
+                              m_2: Material,
+                              t_arr: np.ndarray,
+                              algorithm='effusivity') -> np.ndarray:  #pylint: disable:line-too-long, unused-argument
+    """Calculate the interface temperature.
+
+    Args:
+        m_1 (Material): _description_
+        m_2 (Material): _description_
+        t_arr (np.ndarray): _description_
+        algorithm (str, optional): Interface calculation algorithm: 'average' or 'effusivity'. Defaults to 'effusivity'.
+
+    Returns:
+        np.ndarray: Interface temperature array.
+    """
+
+    t_1 = t_arr[NODES_PER_LAYER - 1, :]
+
+    t_2 = t_arr[NODES_PER_LAYER + 0, :]
+
+    match algorithm:
+        case 'average':
+            t_int = (t_1 + t_2) / 2
+        case 'effusivity':
+            e_1 = m_1.thermal_effusivity
+            e_2 = m_2.thermal_effusivity
+            t_int = hickson.calc_interface_temp(e_1, t_1, e_2, t_2)
+        case _:
+            raise ValueError('Invalid interface temperature calculcation algorithm.')
+
+    return t_int
+
+
 print(' ')
 print(' ')
-
-T_AMB = 115
-
-T_HOT = QSR.extrusion_temp
 
 LAYER_THICKNESS = 1e-3 * inch_to_millimeter(0.010)
 
@@ -201,26 +229,74 @@ CONTACT_TRANSFER_COEFF = 1e10
 
 TIME_0 = 0.0
 
-TIME_F = 10.000
+TIME_F = 1.000
 
-T = np.array([T_AMB] * NODE_CNT, dtype=FLOAT64)
+T_AMB = 115
 
-# Apply the hot temperature.
-T[0:NODES_PER_LAYER] = T_HOT
-
-n_top = QSR
+m_top = QSR
 
 m_bot = QSR
 
-t, res = solve_system(n_top, m_bot, T)
+T = np.array([T_AMB] * NODE_CNT, dtype=FLOAT64)
 
-interface_temp = hickson.calc_interface_temp(n_top.thermal_effusivity, res[NODES_PER_LAYER - 1, :],
-                                             m_bot.thermal_effusivity, res[NODES_PER_LAYER, :])
+T[0:NODES_PER_LAYER] = m_top.extrusion_temp
 
-# plt.semilogx(t, res[0, :])
-plt.semilogx(t, interface_temp)
-# plt.semilogx(t, np.array([n_top.glass_transition] * len(t), dtype=FLOAT64))
-# plt.semilogx(t, np.array([T_AMB] * len(t), dtype=FLOAT64))
-# plt.plot([QSR.extrusion_temp, QSR.extrusion_temp])
+t, res = solve_system(m_top, m_bot, T)
+
+interface_temp = get_interface_temperature(m_top, m_bot, res, algorithm='average')
+
+plt.semilogx(t, interface_temp, label = 'S-S')
+
+m_top = F375M
+
+m_bot = F375M
+
+T = np.array([T_AMB] * NODE_CNT, dtype=FLOAT64)
+
+T[0:NODES_PER_LAYER] = m_top.extrusion_temp
+
+t, res = solve_system(m_top, m_bot, T)
+
+interface_temp = get_interface_temperature(m_top, m_bot, res, algorithm='average')
+
+plt.semilogx(t, interface_temp, label = 'M-M')
+
+m_top = F375M
+
+m_bot = QSR
+
+T = np.array([T_AMB] * NODE_CNT, dtype=FLOAT64)
+
+T[0:NODES_PER_LAYER] = m_top.extrusion_temp
+
+t, res = solve_system(m_top, m_bot, T, time_step=2.5e-6)
+
+interface_temp = get_interface_temperature(m_top, m_bot, res, algorithm='average')
+
+plt.semilogx(t, interface_temp, label = 'M-S')
+
+m_top = QSR
+
+m_bot = F375M
+
+T = np.array([T_AMB] * NODE_CNT, dtype=FLOAT64)
+
+T[0:NODES_PER_LAYER] = m_top.extrusion_temp
+
+t, res = solve_system(m_top, m_bot, T)
+
+interface_temp = get_interface_temperature(m_top, m_bot, res, algorithm='average')
+
+plt.semilogx(t, interface_temp, label = 'S-M')
+
+plt.legend()
+
+plt.xlabel('Time since deposition [s]')
+
+plt.ylabel('Interface temperature [degC]')
+
+plt.xlim([1e-5, 1e1])
+
+plt.ylim([0, 300])
 
 plt.show()
