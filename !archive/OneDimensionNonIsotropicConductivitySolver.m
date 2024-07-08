@@ -96,32 +96,32 @@ function [Results] = LocalSolver(Extrudate,Base,Process,Simulation)
         if(index==1) % Extrudate (first node)            
                         
             ExplicitConductionMatrix(1:3,1)=Extrudate.ThermalDiffusivity*[1 -2 1]/Simulation.NodeSpacing^2;
-            ExplicitConvectionMatrix(index) = (Process.ConvectionCoefficient)/(Extrudate.VolumetricHeatCapacity*Process.Slice.Height);
+            ExplicitConvectionMatrix(index) = (Process.ConvectionCoefficient)/(Extrudate.VolumetricHeatCapacity*Simulation.NodeSpacing);
             Results.Temperature.All(1,index) = Extrudate.Temperature.Extrusion;
             
         elseif(index<Simulation.NodesPerLayer+1 && not(index==1)) % Extrudate    
             
             ExplicitConductionMatrix(index-1:index+1,index)=Extrudate.ThermalDiffusivity*[1 -2 1]/Simulation.NodeSpacing^2;            
-            ExplicitConvectionMatrix(index) = (Process.ConvectionCoefficient)/(Extrudate.VolumetricHeatCapacity*Process.Slice.Height);
+            ExplicitConvectionMatrix(index) = (Process.ConvectionCoefficient)/(Extrudate.VolumetricHeatCapacity*Simulation.NodeSpacing);
             Results.Temperature.All(1,index) = Extrudate.Temperature.Extrusion;
             
         elseif(index==Simulation.NodesPerLayer+1) % Interface
             
             ExplicitConductionMatrix(index-2:index+2,index)=InterfaceConductivity(Simulation.NodeSpacing,Extrudate.ThermalConductivity,Base.ThermalConductivity,Extrudate.ThermalDiffusivity,Base.ThermalDiffusivity);
             %Results.Temperature.All(1,index) = Process.Temperature.Envirionment+(Extrudate.Temperature.Extrusion-Process.Temperature.Envirionment)*(Base.ThermalEffusivity/(Base.ThermalEffusivity+Extrudate.ThermalEffusivity));
-            ExplicitConvectionMatrix(index) = (Process.ConvectionCoefficient)/(mean([Extrudate.VolumetricHeatCapacity,Base.VolumetricHeatCapacity])*Process.Slice.Height);
+            ExplicitConvectionMatrix(index) = (Process.ConvectionCoefficient)/(mean([Extrudate.VolumetricHeatCapacity,Base.VolumetricHeatCapacity])*Simulation.NodeSpacing);
             Results.Temperature.All(1,index) = (Process.Temperature.Envirionment+Extrudate.Temperature.Extrusion)/2;
 
         elseif(index>Simulation.NodesPerLayer+1 && not(index==Simulation.TotalNodes)) % Base
 
             ExplicitConductionMatrix(index-1:index+1,index)=Base.ThermalDiffusivity*[1 -2 1]/Simulation.NodeSpacing^2;
-            ExplicitConvectionMatrix(index) = (Process.ConvectionCoefficient)/(Base.VolumetricHeatCapacity*Process.Slice.Height);
+            ExplicitConvectionMatrix(index) = (Process.ConvectionCoefficient)/(Base.VolumetricHeatCapacity*Simulation.NodeSpacing);
             Results.Temperature.All(1,index) = Process.Temperature.Envirionment;
             
         elseif(index==Simulation.TotalNodes) % Base (last node) 
             
             ExplicitConductionMatrix(end-2:end,index)=Base.ThermalDiffusivity*[1 -2 1]/Simulation.NodeSpacing^2;            
-            ExplicitConvectionMatrix(index) = (Process.ConvectionCoefficient)/(Base.VolumetricHeatCapacity*Process.Slice.Height);        
+            ExplicitConvectionMatrix(index) = (Process.ConvectionCoefficient)/(Base.VolumetricHeatCapacity*Simulation.NodeSpacing);
             Results.Temperature.All(1,index) = Process.Temperature.Envirionment;
             
         end

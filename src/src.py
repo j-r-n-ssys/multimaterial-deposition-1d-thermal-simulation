@@ -50,8 +50,6 @@ def mk_conduction_matrix(m_1: Material, m_2: Material) -> np.ndarray:  #pylint: 
         match i:
             case 0:
                 coeff[i, i:i + 3] = (d_1 / h0**2) * fd_arr  # fwd
-                
-                print(d_1 / h0**2)
 
             case i if i > 0 and i < NODES_PER_LAYER - 1:
                 coeff[i, i - 1:i + 2] = (d_1 / h0**2) * fd_arr
@@ -101,7 +99,11 @@ def mk_convection_matrix(m_1: Material, m_2: Material) -> np.array:  #pylint: di
     return coeff
 
 
-def solve_system(m_1: Material, m_2: Material, temp: np.ndarray, time_step:float = None) -> tuple[np.ndarray, np.ndarray]:  #pylint: disable=redefined-outer-name, disable=line-too-long
+def solve_system(
+    m_1: Material,
+    m_2: Material,
+    temp: np.ndarray,
+    time_step: float = None) -> tuple[np.ndarray, np.ndarray]:  #pylint: disable=redefined-outer-name, disable=line-too-long
     """_summary_
 
     Args:
@@ -112,16 +114,17 @@ def solve_system(m_1: Material, m_2: Material, temp: np.ndarray, time_step:float
     Returns:
         np.ndarray: _description_
     """
-    
+
+    max_thermal_diffusivity = max(m_1.thermal_diffusivity, m_2.thermal_diffusivity)
+
     if time_step is None:
-        time_step = (0.5 * (DELTA_Z**2) / max(m_1.thermal_diffusivity, m_2.thermal_diffusivity)) # Calculate the time step; see eq. 4 in Basgul1 et al.
+        # Calculate the time step; see eq. 4 in Basgul1 et al.
+        time_step = 0.95 * (0.5 * DELTA_Z**2 / max_thermal_diffusivity)
     else:
-        
-        
-        
-        if max(m_1.thermal_diffusivity, m_2.thermal_diffusivity) * time_step / DELTA_Z**2 > 0.5:
-            lg.warning('Time step is too large to guarentee simulation stability.')
-            print(time_step * max(m_1.thermal_diffusivity, m_2.thermal_diffusivity) / DELTA_Z**2)
+        if max_thermal_diffusivity * time_step / DELTA_Z**2 > 0.5:
+            lg.warning(
+                'Time step is too large to guarentee simulation stability. According to the stability criteria, a timestep of %s or smaller should be used.',
+                0.5 * DELTA_Z**2 / max_thermal_diffusivity)
 
     lg.info(pad_kv_pair_str('time step', time_step))
 
@@ -167,7 +170,6 @@ def prep_next_temp_profile(curr_profile: np.ndarray) -> np.ndarray:
     curr_profile[NODES_PER_LAYER:-1] = curr_profile[0:-NODES_PER_LAYER - 1]
 
 
-
 print(' ')
 print(' ')
 
@@ -206,27 +208,19 @@ T = np.array([T_AMB] * NODE_CNT, dtype=FLOAT64)
 # Apply the hot temperature.
 T[0:NODES_PER_LAYER] = T_HOT
 
-m_1 = QSR
+n_top = QSR
 
-m_2 = QSR
+m_bot = QSR
 
-t, res = solve_system(m_1, m_2, T)
+t, res = solve_system(n_top, m_bot, T)
 
-print()
+interface_temp = hickson.calc_interface_temp(n_top.thermal_effusivity, res[NODES_PER_LAYER - 1, :],
+                                             m_bot.thermal_effusivity, res[NODES_PER_LAYER, :])
 
-interface_temp = hickson.calc_interface_temp(m_1.thermal_effusivity, res[NODES_PER_LAYER - 1, :],
-                                             m_2.thermal_effusivity, res[NODES_PER_LAYER, :])
-
-prep_next_temp_profile(res[:, -1])
-
-plt.semilogx(t, res[0,:])
+# plt.semilogx(t, res[0, :])
 plt.semilogx(t, interface_temp)
-plt.semilogx(t, np.array([m_1.glass_transition] * len(t), dtype=FLOAT64))
-plt.semilogx(t, np.array([T_AMB] * len(t), dtype=FLOAT64))
+# plt.semilogx(t, np.array([n_top.glass_transition] * len(t), dtype=FLOAT64))
+# plt.semilogx(t, np.array([T_AMB] * len(t), dtype=FLOAT64))
 # plt.plot([QSR.extrusion_temp, QSR.extrusion_temp])
 
 plt.show()
-
-print(QSR.thermal_diffusivity)
-
-print(F375M.thermal_diffusivity)
