@@ -120,7 +120,6 @@ class ArrheniusModel(AbstractAdhesionModel):
             float  |  np.ndarray: _description_
         """
 
-
         if isinstance(temp, float):
             return 10**((-self._e_a / 2.303 * UNIVERSAL_GAS_CONSTANT) * (1 / temp - 1 / self._t_r))
         elif isinstance(temp, np.ndarray):
