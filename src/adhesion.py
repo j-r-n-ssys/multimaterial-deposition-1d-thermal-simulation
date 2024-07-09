@@ -4,13 +4,12 @@ import logging as lg
 import numpy as np
 
 from os.path import basename as get_module_fname
-from types import NoneType
 
 NUMERICAL_TYPES = (int, float)
 
 CELSIUS_TO_KELVIN_OFFSET = 273.15
 
-UNIVERSAL_GAS_CONSTANT = 8.31446261815324 # J/K-mol
+UNIVERSAL_GAS_CONSTANT = 8.31446261815324  # J/K-mol
 
 
 class WilliamLandelFerryModel():
@@ -27,15 +26,17 @@ class WilliamLandelFerryModel():
         """
 
         if not isinstance(c_1, NUMERICAL_TYPES) or not isinstance(c_2, NUMERICAL_TYPES):
-            raise TypeError('WLF Model empirical constant C1 and C2 must be a numerical type.')
-        elif not isinstance(t_ref, NUMERICAL_TYPES) :
-            raise TypeError('Temperature T_ref mmust be a numerical type.')
-        elif not (t_glass is None or isinstance(t_glass, NUMERICAL_TYPES)):
-            raise TypeError('Temperature T_ref mmust be a numerical type or None.')
+            raise TypeError('WLF Model empirical constant C1 and C2 must be a numerical type, not {type(length)}.')
         elif c_1 <= 0 or c_2 <= 0:
             raise ValueError('WLF Model empirical constants C1 and C2 must be greater than zero.')
+
+        if not isinstance(t_ref, NUMERICAL_TYPES):
+            raise TypeError(f'Temperature T_ref mmust be a numerical type, not {type(t_ref)}.')
         elif t_ref < -CELSIUS_TO_KELVIN_OFFSET:
             raise ValueError('Reference temperature T_ref must be greater than absolute zero.')
+
+        if not (t_glass is None or isinstance(t_glass, NUMERICAL_TYPES)):
+            raise TypeError(f'Temperature T_ref mmust be a numerical type, not {type(t_glass)}.')
         elif t_glass is not None and t_glass < -CELSIUS_TO_KELVIN_OFFSET:
             raise ValueError('Glass transition temperature T_ref must be greater than absolute zero.')
 
@@ -72,13 +73,12 @@ class WilliamLandelFerryModel():
 
 class ArrheniusModel():
     """This object represents a Arrhenius time-temperature superposition model."""
-    
-    def __init__(self, e_a:float, t_ref:float) -> None:
-        
-    
+
+    def __init__(self, e_a: float, t_ref: float) -> None:
+
         self.e_a = e_a
         self.t_r = t_ref
-        
+
     def get_shift_factor(self, temp: (float | np.ndarray)) -> (float | np.ndarray):
         """_summary_
 
@@ -89,14 +89,16 @@ class ArrheniusModel():
             float  |  np.ndarray: _description_
         """
 
-        return 10** ((-self.e_a / 2.303 * UNIVERSAL_GAS_CONSTANT) * (1/temp - 1/self.t_r))
+        return 10**((-self.e_a / 2.303 * UNIVERSAL_GAS_CONSTANT) * (1 / temp - 1 / self.t_r))
+
 
 if __name__ == '__main__':
-    # lg.warning('Module %s is not intended to be run as standalone module.', get_module_fname(__file__))
+    if False:
+        lg.warning('Module %s is not intended to be run as standalone module.', get_module_fname(__file__))
 
     print(' ')
     print(' ')
 
     wlf = WilliamLandelFerryModel(5.78, 182, 200, None)
-    
+
     print(wlf.get_shift_factor(205))
