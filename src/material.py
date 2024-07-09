@@ -92,5 +92,3 @@ F375M = Material('F375M Sinterable', 6174.2, 10.6, 942.8, -30.0, 170, 235, None)
 
 if __name__ == '__main__':
     lg.warning('Module %s is not intended to be run as standalone module.', get_module_fname(__file__))
-
-    print(QSR.thermal_diffusivity)
