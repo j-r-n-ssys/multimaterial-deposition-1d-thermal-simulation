@@ -25,8 +25,10 @@ class WilliamLandelFerryModel():
             t_glass (float | None): Glass transition temperature [degC]
         """
 
-        if not isinstance(c_1, NUMERICAL_TYPES) or not isinstance(c_2, NUMERICAL_TYPES):
-            raise TypeError('WLF Model empirical constant C1 and C2 must be a numerical type, not {type(length)}.')
+        if not isinstance(c_1, NUMERICAL_TYPES):
+            raise TypeError(f'WLF Model empirical constant C1 must be a numerical type, not {type(c_1)}.')
+        elif not isinstance(c_2, NUMERICAL_TYPES):
+            raise TypeError(f'WLF Model empirical constant C2 must be a numerical type, not {type(c_2)}.')
         elif c_1 <= 0 or c_2 <= 0:
             raise ValueError('WLF Model empirical constants C1 and C2 must be greater than zero.')
 
