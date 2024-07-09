@@ -7,7 +7,7 @@ import numpy as np
 
 import hickson
 
-from material import Material, QSR, F375M
+from material import Material, calculate_bond, QSR, F375M
 
 from units import inch_to_millimeter
 from util import pad_kv_pair_str
@@ -202,6 +202,7 @@ def get_interface_temperature(m_1: Material,
     return t_int
 
 
+
 print(' ')
 print(' ')
 
@@ -209,7 +210,7 @@ LAYER_THICKNESS = 1e-3 * inch_to_millimeter(0.010)
 
 LAYER_CNT = 10
 
-NODES_PER_LAYER = 10
+NODES_PER_LAYER = 20
 
 pad_kv_pair_str('layer thickness', LAYER_THICKNESS)
 
@@ -229,7 +230,7 @@ CONTACT_TRANSFER_COEFF = 1e10
 
 TIME_0 = 0.0
 
-TIME_F = 1.000
+TIME_F = 10.000
 
 T_AMB = 115
 
@@ -245,49 +246,53 @@ t, res = solve_system(m_top, m_bot, T)
 
 interface_temp = get_interface_temperature(m_top, m_bot, res, algorithm='average')
 
+ret = calculate_bond(QSR, t, interface_temp)
+
+print(ret)
+
 plt.semilogx(t, interface_temp, label = 'S-S')
 
-m_top = F375M
+# m_top = F375M
 
-m_bot = F375M
+# m_bot = F375M
 
-T = np.array([T_AMB] * NODE_CNT, dtype=FLOAT64)
+# T = np.array([T_AMB] * NODE_CNT, dtype=FLOAT64)
 
-T[0:NODES_PER_LAYER] = m_top.extrusion_temp
+# T[0:NODES_PER_LAYER] = m_top.extrusion_temp
 
-t, res = solve_system(m_top, m_bot, T)
+# t, res = solve_system(m_top, m_bot, T)
 
-interface_temp = get_interface_temperature(m_top, m_bot, res, algorithm='average')
+# interface_temp = get_interface_temperature(m_top, m_bot, res, algorithm='average')
 
-plt.semilogx(t, interface_temp, label = 'M-M')
+# plt.semilogx(t, interface_temp, label = 'M-M')
 
-m_top = F375M
+# m_top = F375M
 
-m_bot = QSR
+# m_bot = QSR
 
-T = np.array([T_AMB] * NODE_CNT, dtype=FLOAT64)
+# T = np.array([T_AMB] * NODE_CNT, dtype=FLOAT64)
 
-T[0:NODES_PER_LAYER] = m_top.extrusion_temp
+# T[0:NODES_PER_LAYER] = m_top.extrusion_temp
 
-t, res = solve_system(m_top, m_bot, T, time_step=2.5e-6)
+# t, res = solve_system(m_top, m_bot, T, time_step=2.5e-6)
 
-interface_temp = get_interface_temperature(m_top, m_bot, res, algorithm='average')
+# interface_temp = get_interface_temperature(m_top, m_bot, res, algorithm='average')
 
-plt.semilogx(t, interface_temp, label = 'M-S')
+# plt.semilogx(t, interface_temp, label = 'M-S')
 
-m_top = QSR
+# m_top = QSR
 
-m_bot = F375M
+# m_bot = F375M
 
-T = np.array([T_AMB] * NODE_CNT, dtype=FLOAT64)
+# T = np.array([T_AMB] * NODE_CNT, dtype=FLOAT64)
 
-T[0:NODES_PER_LAYER] = m_top.extrusion_temp
+# T[0:NODES_PER_LAYER] = m_top.extrusion_temp
 
-t, res = solve_system(m_top, m_bot, T)
+# t, res = solve_system(m_top, m_bot, T)
 
-interface_temp = get_interface_temperature(m_top, m_bot, res, algorithm='average')
+# interface_temp = get_interface_temperature(m_top, m_bot, res, algorithm='average')
 
-plt.semilogx(t, interface_temp, label = 'S-M')
+# plt.semilogx(t, interface_temp, label = 'S-M')
 
 plt.legend()
 
@@ -300,3 +305,4 @@ plt.xlim([1e-5, 1e1])
 plt.ylim([0, 300])
 
 plt.show()
+

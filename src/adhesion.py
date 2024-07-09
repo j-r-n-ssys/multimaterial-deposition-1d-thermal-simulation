@@ -1,9 +1,12 @@
 """Collection of class definitions and functions for time-temperature superposition."""
 
+
 import logging as lg
 import numpy as np
 
+from abc import abstractmethod
 from os.path import basename as get_module_fname
+
 
 NUMERICAL_TYPES = (int, float)
 
@@ -12,7 +15,14 @@ CELSIUS_TO_KELVIN_OFFSET = 273.15
 UNIVERSAL_GAS_CONSTANT = 8.31446261815324  # J/K-mol
 
 
-class WilliamLandelFerryModel():
+class AdhesionModel():
+    
+    @abstractmethod
+    def get_shift_factor(self) -> (float | np.ndarray): #pylint: disable=unused-argument
+        ...
+
+
+class WilliamLandelFerryModel(AdhesionModel):
     """This object represents a William-Landel-Ferry time-temperature superposition model."""
 
     def __init__(self, c_1, c_2, t_ref: float, t_glass: float | None) -> None:
@@ -47,15 +57,18 @@ class WilliamLandelFerryModel():
         self.t_r = t_ref + CELSIUS_TO_KELVIN_OFFSET
         self.t_g = t_glass + CELSIUS_TO_KELVIN_OFFSET if t_glass is not None else None
 
-    def get_shift_factor(self, temp: (float | np.ndarray)) -> (float | np.ndarray):
-        """_summary_
+    def get_shift_factor(self, temp: (int|float | np.ndarray)) -> (float | np.ndarray):
+        """Get time-temperature position shift factor at temperature.
 
         Args:
-            temp (float  |  np.ndarray): Temperature [degC]
+            temp (float  |  np.ndarray): Temperature [degC].
 
         Returns:
-            float  |  np.ndarray: _description_
+            float  |  np.ndarray: Time-temperature superposition shift factor.
         """
+        
+        if not isinstance(temp, (int,float,np.ndarray)):
+            raise TypeError(f'temp must be a numerical type or array, not a {type(temp)}')
 
         if self.t_g is not None:
             if np.max(temp) > self.t_g + 100:
@@ -73,7 +86,7 @@ class WilliamLandelFerryModel():
             raise TypeError('Temperature argument must be a numerical type or numerical array.')
 
 
-class ArrheniusModel():
+class ArrheniusModel(AdhesionModel):
     """This object represents a Arrhenius time-temperature superposition model."""
 
     def __init__(self, e_a: float, t_ref: float) -> None:
@@ -81,18 +94,40 @@ class ArrheniusModel():
         self.e_a = e_a
         self.t_r = t_ref
 
-    def get_shift_factor(self, temp: (float | np.ndarray)) -> (float | np.ndarray):
-        """_summary_
+    # def get_shift_factor(self, temp: (float | np.ndarray)) -> (float | np.ndarray):
+    #     """_summary_
 
-        Args:
-            temp (float  |  np.ndarray): Temperature [degC]
+    #     Args:
+    #         temp (float  |  np.ndarray): Temperature [degC]
 
-        Returns:
-            float  |  np.ndarray: _description_
-        """
+    #     Returns:
+    #         float  |  np.ndarray: _description_
+    #     """
 
-        return 10**((-self.e_a / 2.303 * UNIVERSAL_GAS_CONSTANT) * (1 / temp - 1 / self.t_r))
+    #     return 10**((-self.e_a / 2.303 * UNIVERSAL_GAS_CONSTANT) * (1 / temp - 1 / self.t_r))
 
+
+
+
+def calculate_bond(material:Material, temp_arr:np.ndarray, dt:float) -> float:
+    """Calculate the time-temperature-strength integral.
+
+    Args:
+        material (Material): Material.
+        temp_arr (np.ndarray): Array of temperatures.
+        dt (float): Time step.
+
+    Returns:
+        float: Relative bond strength.
+    """
+
+    
+
+    shift_factors = material.adhesion_model.get_shift_factor(temp_arr)
+
+    res = abs(np.sum(np.trapz(shift_factors, dt) ** 0.25))
+    
+    return res
 
 if __name__ == '__main__':
     if False:

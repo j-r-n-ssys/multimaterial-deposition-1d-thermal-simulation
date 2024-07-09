@@ -45,3 +45,19 @@ b = np.array([1,2,3], dtype=FLOAT64)
 print(a)
 print(b)
 print(np.divide(a,b))
+
+
+d = np.array([1,2,3])
+
+
+
+e = np.ones(shape = d.shape)
+
+print(np.shape(d))
+
+print(np.shape(e))
+
+e = np.divide(e,d)
+
+
+print(e)
