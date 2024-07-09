@@ -128,7 +128,6 @@ class ArrheniusModel(AbstractAdhesionModel):
             raise TypeError('Temperature argument must be a numerical type or numerical array.')
 
 
-
 ADHESION_MODELS = (WilliamLandelFerryModel, ArrheniusModel)
 
 
@@ -208,6 +207,21 @@ class Material():
         """Thermal diffusivity [sq.m/s]."""
         return self.thermal_conductivity / self.volumetric_heat_capacity  # [m2/s]
 
+    @property
+    def adhesion_model(self) -> (WilliamLandelFerryModel | ArrheniusModel):
+        """Adhesion model."""
+
+    @adhesion_model.setter
+    def adhesion_model(self, adhesion_model: WilliamLandelFerryModel | ArrheniusModel):
+        if not isinstance(adhesion_model, ADHESION_MODELS):
+            raise type(f'model must be an adhesion model instance, not {type(adhesion_model)}')
+
+        self._adhesion_model = adhesion_model
+
+    @property
+    def has_adhesion_model(self) -> bool:
+        return self._adhesion_model is not None
+
 
 def calculate_bond(material: Material, time_arr: np.ndarray, temp_arr: np.ndarray) -> float:
     """Calculate the time-temperature-strength integral.
@@ -224,7 +238,7 @@ def calculate_bond(material: Material, time_arr: np.ndarray, temp_arr: np.ndarra
 
     if not isinstance(material, Material):
         raise TypeError(f'material must be a Material instance, not {type(material)}.')
-    elif material._adhesion_model is None:
+    elif not material.has_adhesion_model:
         raise ValueError('Material instance does not have an adhesion model.')
 
     if not isinstance(time_arr, np.ndarray):
@@ -237,7 +251,7 @@ def calculate_bond(material: Material, time_arr: np.ndarray, temp_arr: np.ndarra
     elif len(temp_arr) != len(time_arr):
         raise ValueError('temp_arr must have the same number of elements as time_arr.')
 
-    shift_factors = material._adhesion_model.get_shift_factor(temp_arr)
+    shift_factors = material.adhesion_model.get_shift_factor(temp_arr)
 
     z = np.divide(np.ones(shift_factors.shape), 2 * np.pi * shift_factors)
 
@@ -257,9 +271,11 @@ ABS = Material('ABS', 1040, 0.209, 1506, 105, None, 260, None)
 
 QSR = Material('QSR', 1180, 0.1, 1950, 165, None, 295, None)
 
-QSR._adhesion_model = WilliamLandelFerryModel(5.78, 182, 200, None)
+QSR.adhesion_model = WilliamLandelFerryModel(5.78, 182, 200, None)
 
 F375M = Material('F375M Sinterable', 6174.2, 10.6, 942.8, -30.0, 170, 235, None)
+
+F375M.adhesion_model = ArrheniusModel(5.78, 200.0)
 
 if __name__ == '__main__':
     lg.warning('Module %s is not intended to be run as standalone module.', get_module_fname(__file__))

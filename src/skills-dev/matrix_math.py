@@ -61,3 +61,7 @@ e = np.divide(e,d)
 
 
 print(e)
+
+f = np.divide(1, d)
+
+print(f)
