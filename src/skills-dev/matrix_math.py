@@ -65,3 +65,7 @@ print(e)
 f = np.divide(1, d)
 
 print(f)
+
+g = np.array([1,2,3])
+
+print(np.power(10, g))
