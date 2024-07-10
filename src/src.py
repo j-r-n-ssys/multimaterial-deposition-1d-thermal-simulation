@@ -169,10 +169,11 @@ def prep_next_temp_profile(curr_profile: np.ndarray) -> np.ndarray:
     curr_profile[NODES_PER_LAYER:-1] = curr_profile[0:-NODES_PER_LAYER - 1]
 
 
-def calc_interface_temperature(m_1: Material,
-                               m_2: Material,
-                               t_arr: np.ndarray,
-                               algorithm:str='effusivity') -> np.ndarray:  #pylint: disable:line-too-long, unused-argument
+def calc_interface_temperature(
+        m_1: Material,
+        m_2: Material,
+        t_arr: np.ndarray,
+        algorithm: str = 'effusivity') -> np.ndarray:  #pylint: disable:line-too-long, unused-argument
     """Calculate the interface temperature.
 
     Args:
@@ -206,6 +207,8 @@ print(' ')
 print(' ')
 
 LAYER_THICKNESS = 1e-3 * inch_to_millimeter(0.010)
+
+LAYER_WIDTH = 1e-3 * inch_to_millimeter(0.030)
 
 LAYER_CNT = 10
 
