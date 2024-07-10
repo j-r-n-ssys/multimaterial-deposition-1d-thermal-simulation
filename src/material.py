@@ -102,8 +102,8 @@ class ArrheniusModel(AbstractAdhesionModel):
         elif e_a < 0:
             raise ValueError('e_a must be a positive value.')
 
-        if not isinstance(t_ref):
-            raise TypeError(t_ref, NUMERICAL_TYPES)
+        if not isinstance(t_ref, NUMERICAL_TYPES):
+            raise TypeError(f't_ref must be a numerical type, not a {type(t_ref)}')
         elif t_ref + CELSIUS_TO_KELVIN_OFFSET < 0:
             raise ValueError('t_ref must be greater than absolute zero.')
 
@@ -244,7 +244,7 @@ def calculate_bond(material: Material, time_arr: np.ndarray, temp_arr: np.ndarra
     if not isinstance(time_arr, np.ndarray):
         raise TypeError(f'time_arr must be an array, not {type(time_arr)}.')
     elif len(time_arr) < 2:
-        raise ValueError('time_arr must have at least two values.')
+        raise IndexError('time_arr must have at least two values.')
 
     if not isinstance(temp_arr, np.ndarray):
         raise TypeError(f'temp_arr must be an array, not {type(temp_arr)}.')
@@ -253,7 +253,7 @@ def calculate_bond(material: Material, time_arr: np.ndarray, temp_arr: np.ndarra
 
     shift_factors = material.adhesion_model.get_shift_factor(temp_arr)
 
-    z = np.divide(np.ones(shift_factors.shape), 2 * np.pi * shift_factors)
+    z = np.divide(1.0, 2.0 * np.pi * shift_factors)
 
     z[temp_arr < material.glass_transition] = 0
 
