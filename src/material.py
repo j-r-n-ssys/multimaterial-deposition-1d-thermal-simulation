@@ -15,14 +15,14 @@ CELSIUS_TO_KELVIN_OFFSET = 273.15
 UNIVERSAL_GAS_CONSTANT = 8.31446261815324  # J/K-mol
 
 
-class AbstractAdhesionModel():
+class AdhesionModelBase():
 
     @abstractmethod
     def get_shift_factor(self) -> (float | np.ndarray):  #pylint: disable=unused-argument
         ...
 
 
-class WilliamLandelFerryModel(AbstractAdhesionModel):
+class WilliamLandelFerryModel(AdhesionModelBase):
     """This object represents a William-Landel-Ferry time-temperature superposition model."""
 
     def __init__(self, c_1, c_2, t_ref: float, t_glass: float | None) -> None:
@@ -86,7 +86,7 @@ class WilliamLandelFerryModel(AbstractAdhesionModel):
             raise TypeError('Temperature argument must be a numerical type or numerical array.')
 
 
-class ArrheniusModel(AbstractAdhesionModel):
+class ArrheniusModel(AdhesionModelBase):
     """This object represents a Arrhenius time-temperature superposition model."""
 
     def __init__(self, e_a: float, t_ref: float) -> None:
