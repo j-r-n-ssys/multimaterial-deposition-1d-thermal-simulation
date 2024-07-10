@@ -66,7 +66,7 @@ def mk_conduction_matrix(m_1: Material, m_2: Material) -> np.ndarray:  #pylint: 
                 coeff[i, i - 1:i + 2] = (d_2 / h0**2) * fd_arr
 
             case i if i == NODE_CNT - 1:
-                pass # coeff[i, i - 2:i + 1] = (d_2 / h0**2) * fd_arr
+                pass  # coeff[i, i - 2:i + 1] = (d_2 / h0**2) * fd_arr
 
             case _:
                 raise ValueError('Illegal index.')
@@ -202,7 +202,6 @@ def get_interface_temperature(m_1: Material,
     return t_int
 
 
-
 print(' ')
 print(' ')
 
@@ -230,7 +229,7 @@ CONTACT_TRANSFER_COEFF = 1e10
 
 TIME_0 = 0.0
 
-TIME_F = 10.000
+TIME_F = 2.000
 
 T_AMB = 115
 
@@ -246,53 +245,57 @@ t, res = solve_system(m_top, m_bot, T)
 
 interface_temp = get_interface_temperature(m_top, m_bot, res, algorithm='average')
 
-ret = calculate_bond(QSR, t, interface_temp)
+print(calculate_bond(m_top, t, interface_temp))
 
-print(ret)
+plt.semilogx(t, interface_temp, label='S-S')
 
-plt.semilogx(t, interface_temp, label = 'S-S')
+m_top = F375M
 
-# m_top = F375M
+m_bot = F375M
 
-# m_bot = F375M
+T = np.array([T_AMB] * NODE_CNT, dtype=FLOAT64)
 
-# T = np.array([T_AMB] * NODE_CNT, dtype=FLOAT64)
+T[0:NODES_PER_LAYER] = m_top.extrusion_temp
 
-# T[0:NODES_PER_LAYER] = m_top.extrusion_temp
+t, res = solve_system(m_top, m_bot, T)
 
-# t, res = solve_system(m_top, m_bot, T)
+interface_temp = get_interface_temperature(m_top, m_bot, res, algorithm='average')
 
-# interface_temp = get_interface_temperature(m_top, m_bot, res, algorithm='average')
+print(calculate_bond(m_top, t, interface_temp))
 
-# plt.semilogx(t, interface_temp, label = 'M-M')
+plt.semilogx(t, interface_temp, label = 'M-M')
 
-# m_top = F375M
+m_top = F375M
 
-# m_bot = QSR
+m_bot = QSR
 
-# T = np.array([T_AMB] * NODE_CNT, dtype=FLOAT64)
+T = np.array([T_AMB] * NODE_CNT, dtype=FLOAT64)
 
-# T[0:NODES_PER_LAYER] = m_top.extrusion_temp
+T[0:NODES_PER_LAYER] = m_top.extrusion_temp
 
-# t, res = solve_system(m_top, m_bot, T, time_step=2.5e-6)
+t, res = solve_system(m_top, m_bot, T, time_step=2.5e-6)
 
-# interface_temp = get_interface_temperature(m_top, m_bot, res, algorithm='average')
+interface_temp = get_interface_temperature(m_top, m_bot, res, algorithm='average')
 
-# plt.semilogx(t, interface_temp, label = 'M-S')
+print(calculate_bond(m_top, t, interface_temp))
 
-# m_top = QSR
+plt.semilogx(t, interface_temp, label = 'M-S')
 
-# m_bot = F375M
+m_top = QSR
 
-# T = np.array([T_AMB] * NODE_CNT, dtype=FLOAT64)
+m_bot = F375M
 
-# T[0:NODES_PER_LAYER] = m_top.extrusion_temp
+T = np.array([T_AMB] * NODE_CNT, dtype=FLOAT64)
 
-# t, res = solve_system(m_top, m_bot, T)
+T[0:NODES_PER_LAYER] = m_top.extrusion_temp
 
-# interface_temp = get_interface_temperature(m_top, m_bot, res, algorithm='average')
+t, res = solve_system(m_top, m_bot, T)
 
-# plt.semilogx(t, interface_temp, label = 'S-M')
+interface_temp = get_interface_temperature(m_top, m_bot, res, algorithm='average')
+
+print(calculate_bond(m_top, t, interface_temp))
+
+plt.semilogx(t, interface_temp, label = 'S-M')
 
 plt.legend()
 
@@ -305,4 +308,3 @@ plt.xlim([1e-5, 1e1])
 plt.ylim([0, 300])
 
 plt.show()
-
