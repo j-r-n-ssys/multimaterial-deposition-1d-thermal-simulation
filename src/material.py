@@ -117,13 +117,17 @@ class ArrheniusModel(AbstractAdhesionModel):
             temp (float  |  np.ndarray): Temperature [degC].
 
         Returns:
-            float  |  np.ndarray: _description_
+            float  |  np.ndarray: 
         """
 
+        
+
+        f = (-self._e_a / 2.303 * UNIVERSAL_GAS_CONSTANT)
+
         if isinstance(temp, float):
-            return 10**((-self._e_a / 2.303 * UNIVERSAL_GAS_CONSTANT) * (1 / temp - 1 / self._t_r))
+            return 10**(f * (1 / (temp + CELSIUS_TO_KELVIN_OFFSET) - 1 / self._t_r))
         elif isinstance(temp, np.ndarray):
-            pass
+            return np.power(10, f * (np.divide(1, temp + CELSIUS_TO_KELVIN_OFFSET) - (1 / self._t_r)))
         else:
             raise TypeError('Temperature argument must be a numerical type or numerical array.')
 
@@ -209,12 +213,13 @@ class Material():
 
     @property
     def adhesion_model(self) -> (WilliamLandelFerryModel | ArrheniusModel):
-        """Adhesion model."""
+        """Adhesion model instance."""
+        return self._adhesion_model
 
     @adhesion_model.setter
     def adhesion_model(self, adhesion_model: WilliamLandelFerryModel | ArrheniusModel):
         if not isinstance(adhesion_model, ADHESION_MODELS):
-            raise type(f'model must be an adhesion model instance, not {type(adhesion_model)}')
+            raise type(f'adhesion_model must be an adhesion model instance, not {type(adhesion_model)}')
 
         self._adhesion_model = adhesion_model
 
