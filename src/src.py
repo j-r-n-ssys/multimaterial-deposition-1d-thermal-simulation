@@ -169,10 +169,10 @@ def prep_next_temp_profile(curr_profile: np.ndarray) -> np.ndarray:
     curr_profile[NODES_PER_LAYER:-1] = curr_profile[0:-NODES_PER_LAYER - 1]
 
 
-def get_interface_temperature(m_1: Material,
-                              m_2: Material,
-                              t_arr: np.ndarray,
-                              algorithm='effusivity') -> np.ndarray:  #pylint: disable:line-too-long, unused-argument
+def calc_interface_temperature(m_1: Material,
+                               m_2: Material,
+                               t_arr: np.ndarray,
+                               algorithm:str='effusivity') -> np.ndarray:  #pylint: disable:line-too-long, unused-argument
     """Calculate the interface temperature.
 
     Args:
@@ -243,7 +243,7 @@ T[0:NODES_PER_LAYER] = m_top.extrusion_temp
 
 t, res = solve_system(m_top, m_bot, T)
 
-interface_temp = get_interface_temperature(m_top, m_bot, res, algorithm='average')
+interface_temp = calc_interface_temperature(m_top, m_bot, res, algorithm='average')
 
 print(calculate_bond(m_top, t, interface_temp))
 
