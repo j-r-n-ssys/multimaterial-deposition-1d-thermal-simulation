@@ -151,22 +151,26 @@ def solve_system(
 
         temp_arr[:, i] = temp + time_step * (np.dot(coeff_k, temp.T) - coeff_h * (temp - T_AMB))
 
-    time_arr = np.linspace(TIME_0, TIME_F, time_steps)
+    time_arr = np.linspace(0, TIME_F, time_steps)
 
     return time_arr, temp_arr
 
 
-def prep_next_temp_profile(curr_profile: np.ndarray) -> np.ndarray:
-    """_summary_
+def prep_next_temp_profile(curr_profile: np.ndarray, next_maerial: Material) -> np.ndarray:
+    """Calculate the next temperature profile. 
 
     Args:
-        curr_profile (np.ndarray): _description_
+        curr_profile (np.ndarray): Current temperature profile. 
 
     Returns:
         np.ndarray: _description_
     """
 
     curr_profile[NODES_PER_LAYER:-1] = curr_profile[0:-NODES_PER_LAYER - 1]
+
+    curr_profile[0:NODES_PER_LAYER] = m_top.extrusion_temp
+
+    return curr_profile
 
 
 def calc_interface_temperature(
@@ -230,8 +234,6 @@ CONVECTION_COEFF = 50
 
 CONTACT_TRANSFER_COEFF = 1e10
 
-TIME_0 = 0.0
-
 TIME_F = 10.000
 
 T_AMB = 115
@@ -242,7 +244,7 @@ m_bot = QSR
 
 T = np.array([T_AMB] * NODE_CNT, dtype=FLOAT64)
 
-T[0:NODES_PER_LAYER] = m_top.extrusion_temp
+T = prep_next_temp_profile(T, m_top)
 
 t, res = solve_system(m_top, m_bot, T)
 
@@ -306,7 +308,7 @@ plt.xlabel('Time since deposition [s]')
 
 plt.ylabel('Interface temperature [degC]')
 
-plt.xlim([1e-5, 1e1])
+plt.xlim([1e-3, 1e1])
 
 plt.ylim([0, 300])
 
