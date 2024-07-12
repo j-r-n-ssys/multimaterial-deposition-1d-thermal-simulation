@@ -21,7 +21,8 @@ class AdhesionModelBase():
 
 
 class WilliamLandelFerryModel(AdhesionModelBase):
-    """This object represents a William-Landel-Ferry time-temperature superposition model."""
+    """This object represents a William-Landel-Ferry time-temperature superposition horizontal shift factor estimation 
+    model."""
 
     def __init__(self, c_1: float, c_2: float, t_ref: float) -> None:
         """Init.
@@ -50,13 +51,13 @@ class WilliamLandelFerryModel(AdhesionModelBase):
         self._t_r = float(t_ref) + CELSIUS_TO_KELVIN_OFFSET
 
     def get_shift_factor(self, temp: (int | float | np.ndarray)) -> (float | np.ndarray):
-        """Get time-temperature position shift factor at temperature.
+        """Calculate the time-temperature position horizontal shift factor at temperature.
 
         Args:
             temp (float  |  np.ndarray): Temperature [degC].
 
         Returns:
-            float  |  np.ndarray: Time-temperature superposition shift factor.
+            float  |  np.ndarray: TTS horizontal shift factor.
         """
 
         if not isinstance(temp, (int, float, np.ndarray)):
@@ -79,7 +80,7 @@ class WilliamLandelFerryModel(AdhesionModelBase):
 
 
 class ArrheniusModel(AdhesionModelBase):
-    """This object represents a Arrhenius time-temperature superposition model."""
+    """This object represents an Arrhenius time-temperature superposition horizontal shift factor estimation model."""
 
     UNIVERSAL_GAS_CONSTANT = 8.31446261815324  # J/K-mol
 
@@ -105,13 +106,13 @@ class ArrheniusModel(AdhesionModelBase):
         self._t_r = t_ref + CELSIUS_TO_KELVIN_OFFSET
 
     def get_shift_factor(self, temp: (float | np.ndarray)) -> (float | np.ndarray):
-        """_summary_
+        """Calculate the time-temperature position horizontal shift factor at temperature.
 
         Args:
             temp (float  |  np.ndarray): Temperature [degC].
 
         Returns:
-            float  |  np.ndarray: 
+            float  |  np.ndarray: TTS horizontal shift factor.
         """
 
         f = -self._e_a / 2.303 * (self.UNIVERSAL_GAS_CONSTANT)
@@ -221,7 +222,7 @@ class Material():
 
 
 def calculate_bond(material: Material, time_arr: np.ndarray, temp_arr: np.ndarray) -> float:
-    """Calculate the time-temperature-strength integral.
+    """Calculate healing ratio using Yang-Pitchumani non-isothermal healing model. 
 
     Args:
         material (Material): Material.
