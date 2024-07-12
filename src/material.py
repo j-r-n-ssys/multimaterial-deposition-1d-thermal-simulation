@@ -25,14 +25,14 @@ class AdhesionModelBase():
 class WilliamLandelFerryModel(AdhesionModelBase):
     """This object represents a William-Landel-Ferry time-temperature superposition model."""
 
-    def __init__(self, c_1, c_2, t_ref: float, t_glass: float | None) -> None:
-        """_summary_
+    def __init__(self, c_1: float, c_2: float, t_ref: float, t_glass: float | None) -> None:
+        """Initialization.
 
         Args:
-            c_1 (_type_): _description_
-            c_2 (float): WLF model 
-            t_ref (float): Time-temperature superposition reference temperature [degC]. 
-            t_glass (float | None): Glass transition temperature [degC]
+            c_1 (float): WLF horizontal shift factor model empircal constant 1.
+            c_2 (float): WLF horizontal shift factor model empircal constant 2.
+            t_ref (float): WLF horizontal shift factor model reference temperature [degC]. 
+            t_glass (float | None): Glass transition temperature [degC].
         """
 
         if not isinstance(c_1, NUMERICAL_TYPES):
@@ -119,8 +119,6 @@ class ArrheniusModel(AdhesionModelBase):
         Returns:
             float  |  np.ndarray: 
         """
-
-        
 
         f = (-self._e_a / 2.303 * UNIVERSAL_GAS_CONSTANT)
 
@@ -281,8 +279,6 @@ QSR.adhesion_model = WilliamLandelFerryModel(5.78, 182, 200, None)
 F375M = Material('F375M Sinterable', 6174.2, 10.6, 942.8, -30.0, 170, 235, None)
 
 F375M.adhesion_model = ArrheniusModel(5.78, 200.0)
-
-
 
 if __name__ == '__main__':
     lg.warning('Module %s is not intended to be run as standalone module.', get_module_fname(__file__))
