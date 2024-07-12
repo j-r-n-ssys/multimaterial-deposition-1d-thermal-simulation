@@ -16,7 +16,7 @@ CELSIUS_TO_KELVIN_OFFSET = 273.15
 class AdhesionModelBase():
 
     @abstractmethod
-    def get_shift_factor(self) -> (float | np.ndarray):  #pylint: disable=unused-argument
+    def get_shift_factor(self) -> (float | np.ndarray):
         ...
 
 
@@ -62,12 +62,6 @@ class WilliamLandelFerryModel(AdhesionModelBase):
 
         if not isinstance(temp, (int, float, np.ndarray)):
             raise TypeError(f'temp must be a numerical type or array, not a {type(temp)}')
-
-        if self._t_g is not None:
-            if np.max(temp) > self._t_g + 100:
-                lg.warning('Temperature exceeds WLF model validity upper bound.')
-            elif np.min(temp) < self._t_g:
-                lg.warning('Temperature exceeds WLF model validity lower bound.')
 
         temp = temp + CELSIUS_TO_KELVIN_OFFSET
 
