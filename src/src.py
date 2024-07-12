@@ -102,16 +102,18 @@ def solve_system(
     m_1: Material,
     m_2: Material,
     temp: np.ndarray,
-    time_step: float = None) -> tuple[np.ndarray, np.ndarray]:  #pylint: disable=redefined-outer-name, disable=line-too-long
-    """_summary_
+    time_step: float | None = None) -> tuple[np.ndarray, np.ndarray]:  #pylint: disable=redefined-outer-name, disable=line-too-long
+    """Solve the 1D heat transfer problem.
 
     Args:
-        M1 (Material): _description_
-        M2 (Material): _description_
-        temp (np.ndarray): _description_
+        M1 (Material): Material 1 instance.
+        M2 (Material): Material 2 instance.
+        temp (np.ndarray): Temperature array [degC].
+        time_step (float | none): Simulation time step [s]. If None, a timestep will be calculated using a simulation
+        stability criteria. Defauls to None. 
 
     Returns:
-        np.ndarray: _description_
+        tuple[np.ndarray, np.ndarray]: Tuple of time array, time-temperature array. 
     """
 
     max_thermal_diffusivity = max(m_1.thermal_diffusivity, m_2.thermal_diffusivity)
@@ -122,7 +124,7 @@ def solve_system(
     else:
         if max_thermal_diffusivity * time_step / DELTA_Z**2 > 0.5:
             lg.warning(
-                'Time step is too large to guarentee simulation stability. According to the stability criteria, a timestep of %s or smaller should be used.',
+                'Time step is too large to guarantee simulation stability: %s > %s',time_step,
                 0.5 * DELTA_Z**2 / max_thermal_diffusivity)
 
     lg.info(pad_kv_pair_str('time step', time_step))
