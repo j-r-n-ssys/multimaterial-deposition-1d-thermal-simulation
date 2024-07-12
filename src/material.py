@@ -12,8 +12,6 @@ NUMERICAL_TYPES = (int, float)
 
 CELSIUS_TO_KELVIN_OFFSET = 273.15
 
-UNIVERSAL_GAS_CONSTANT = 8.31446261815324  # J/K-mol
-
 
 class AdhesionModelBase():
 
@@ -83,6 +81,8 @@ class WilliamLandelFerryModel(AdhesionModelBase):
 class ArrheniusModel(AdhesionModelBase):
     """This object represents a Arrhenius time-temperature superposition model."""
 
+    UNIVERSAL_GAS_CONSTANT = 8.31446261815324  # J/K-mol
+
     def __init__(self, e_a: float, t_ref: float) -> None:
         """Instance init.
 
@@ -114,7 +114,7 @@ class ArrheniusModel(AdhesionModelBase):
             float  |  np.ndarray: 
         """
 
-        f = (-self._e_a / 2.303 * UNIVERSAL_GAS_CONSTANT)
+        f = (-self._e_a / 2.303 * self.UNIVERSAL_GAS_CONSTANT)
 
         if isinstance(temp, float):
             return 10**(f * (1 / (temp + CELSIUS_TO_KELVIN_OFFSET) - 1 / self._t_r))
