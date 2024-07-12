@@ -114,7 +114,7 @@ class ArrheniusModel(AdhesionModelBase):
             float  |  np.ndarray: 
         """
 
-        f = (-self._e_a / 2.303 * self.UNIVERSAL_GAS_CONSTANT)
+        f = -self._e_a / 2.303 * (self.UNIVERSAL_GAS_CONSTANT)
 
         if isinstance(temp, float):
             return 10**(f * (1 / (temp + CELSIUS_TO_KELVIN_OFFSET) - 1 / self._t_r))
@@ -268,7 +268,7 @@ ABS = Material('ABS', 1040, 0.209, 1506, 105, None, 260, None)
 
 QSR = Material('QSR', 1180, 0.1, 1950, 165, None, 295, None)
 
-QSR.adhesion_model = WilliamLandelFerryModel(5.78, 182, 200, None)
+QSR.adhesion_model = WilliamLandelFerryModel(5.78, 182, 200)
 
 F375M = Material('F375M Sinterable', 6174.2, 10.6, 942.8, -30.0, 170, 235, None)
 
