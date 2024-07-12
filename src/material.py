@@ -24,7 +24,7 @@ class WilliamLandelFerryModel(AdhesionModelBase):
     """This object represents a William-Landel-Ferry time-temperature superposition model."""
 
     def __init__(self, c_1: float, c_2: float, t_ref: float) -> None:
-        """Initialization.
+        """Init.
 
         Args:
             c_1 (float): WLF horizontal shift factor model empircal constant 1.
@@ -84,7 +84,7 @@ class ArrheniusModel(AdhesionModelBase):
     UNIVERSAL_GAS_CONSTANT = 8.31446261815324  # J/K-mol
 
     def __init__(self, e_a: float, t_ref: float) -> None:
-        """Instance init.
+        """Init.
 
         Args:
             e_a (float): Activation energy.
