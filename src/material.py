@@ -25,7 +25,7 @@ class AdhesionModelBase():
 class WilliamLandelFerryModel(AdhesionModelBase):
     """This object represents a William-Landel-Ferry time-temperature superposition model."""
 
-    def __init__(self, c_1: float, c_2: float, t_ref: float, t_glass: float | None) -> None:
+    def __init__(self, c_1: float, c_2: float, t_ref: float) -> None:
         """Initialization.
 
         Args:
@@ -47,15 +47,9 @@ class WilliamLandelFerryModel(AdhesionModelBase):
         elif t_ref < -CELSIUS_TO_KELVIN_OFFSET:
             raise ValueError('Reference temperature T_ref must be greater than absolute zero.')
 
-        if not (t_glass is None or isinstance(t_glass, NUMERICAL_TYPES)):
-            raise TypeError(f'Temperature T_ref mmust be a numerical type, not {type(t_glass)}.')
-        elif t_glass is not None and t_glass < -CELSIUS_TO_KELVIN_OFFSET:
-            raise ValueError('Glass transition temperature T_ref must be greater than absolute zero.')
-
         self._c_1 = float(c_1)
         self._c_2 = float(c_2)
         self._t_r = float(t_ref) + CELSIUS_TO_KELVIN_OFFSET
-        self._t_g = float(t_glass) + CELSIUS_TO_KELVIN_OFFSET if t_glass is not None else None
 
     def get_shift_factor(self, temp: (int | float | np.ndarray)) -> (float | np.ndarray):
         """Get time-temperature position shift factor at temperature.
