@@ -14,6 +14,7 @@ CELSIUS_TO_KELVIN_OFFSET = 273.15
 
 
 class AdhesionModelBase():
+    """This abstract class is a base class for adhesion models."""
 
     @abstractmethod
     def get_shift_factor(self) -> (float | np.ndarray):
@@ -215,7 +216,7 @@ class Material():
         return self._adhesion_model is not None
 
 
-def calculate_bond(material: Material, time_arr: np.ndarray, temp_arr: np.ndarray) -> float:
+def calculate_healing(material: Material, time_arr: np.ndarray, temp_arr: np.ndarray) -> float:
     """Calculate healing ratio using Yang-Pitchumani non-isothermal healing model. 
 
     Args:

@@ -7,7 +7,7 @@ import numpy as np
 
 import hickson
 
-from material import Material, calculate_bond, QSR, F375M
+from material import Material, calculate_healing, QSR, F375M
 
 from units import inch_to_millimeter
 from util import pad_kv_pair_str
@@ -102,7 +102,8 @@ def solve_system(
     m_1: Material,
     m_2: Material,
     temp: np.ndarray,
-    time_step: float | None = None) -> tuple[np.ndarray, np.ndarray]:  #pylint: disable=redefined-outer-name, disable=line-too-long
+    time_step: float | None = None
+) -> tuple[np.ndarray, np.ndarray]:  #pylint: disable=redefined-outer-name, disable=line-too-long
     """Solve the 1D heat transfer problem.
 
     Args:
@@ -123,9 +124,8 @@ def solve_system(
         time_step = 0.5 * (0.5 * DELTA_Z**2 / max_thermal_diffusivity)
     else:
         if max_thermal_diffusivity * time_step / DELTA_Z**2 > 0.5:
-            lg.warning(
-                'Time step is too large to guarantee simulation stability: %s > %s',time_step,
-                0.5 * DELTA_Z**2 / max_thermal_diffusivity)
+            lg.warning('Time step is too large to guarantee simulation stability: %s > %s', time_step,
+                       0.5 * DELTA_Z**2 / max_thermal_diffusivity)
 
     lg.info(pad_kv_pair_str('time step', time_step))
 
@@ -136,10 +136,10 @@ def solve_system(
 
     lg.info(pad_kv_pair_str('simulation time', float(time_steps) * time_step))
 
-    # Make the conduction coefficient matrix.
+    # Make the n x n conduction coefficients matrix.
     coeff_k = mk_conduction_matrix(m_1, m_2)
 
-    # Make the convection coefficient matrix.
+    # Make the n x 1 convection coefficients matrix.
     coeff_h = mk_convection_matrix(m_1, m_2)
 
     temp_arr = np.zeros(shape=[NODE_CNT, time_steps], dtype=FLOAT64)  #pylint disable=redefined_outer_scope
@@ -170,7 +170,7 @@ def prep_next_temp_profile(curr_profile: np.ndarray, next_maerial: Material) -> 
 
     curr_profile[NODES_PER_LAYER:-1] = curr_profile[0:-NODES_PER_LAYER - 1]
 
-    curr_profile[0:NODES_PER_LAYER] = m_top.extrusion_temp
+    curr_profile[0:NODES_PER_LAYER] = next_maerial.extrusion_temp
 
     return curr_profile
 
@@ -252,7 +252,7 @@ t, res = solve_system(m_top, m_bot, T)
 
 interface_temp = calc_interface_temperature(m_top, m_bot, res, algorithm='average')
 
-print(calculate_bond(m_top, t, interface_temp))
+print(calculate_healing(m_top, t, interface_temp))
 
 plt.semilogx(t, interface_temp, label='S-S')
 

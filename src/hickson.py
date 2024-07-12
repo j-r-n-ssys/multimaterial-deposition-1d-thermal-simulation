@@ -236,4 +236,3 @@ def calc_interface_temp(e_1: float, t_1: float, e_2: float, t_2: float) -> float
 
 if __name__ == '__main__':
     lg.warning('Module %s is not intended to be run as standalone module.', get_module_fname(__file__))
-
