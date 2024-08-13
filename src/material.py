@@ -126,18 +126,34 @@ class ArrheniusModel(AdhesionModelBase):
         """
 
         if not isinstance(e_a, NUMERICAL_TYPES):
-            raise TypeError(f'e_a must be a numerical type, not {type(e_a)}')
+            raise TypeError(f'Activation energy must be a numerical type, not {type(e_a)}')
         elif e_a < 0:
-            raise ValueError('e_a must be a positive value.')
+            raise ValueError('Activation energy must be a positive value.')
 
-        if not isinstance(t_ref, NUMERICAL_TYPES):
-            raise TypeError(f't_ref must be a numerical type, not a {type(t_ref)}')
-        elif t_ref + CELSIUS_TO_KELVIN_OFFSET < 0:
-            raise ValueError('t_ref must be greater than absolute zero.')
+        self.e_a = e_a
 
-        self._e_a = e_a
+    @property
+    def e_a(self) -> float:
+        """Model activation energy."""
+        return self._e_a
 
-        self._t_r = t_ref + CELSIUS_TO_KELVIN_OFFSET
+    @e_a.setter
+    def e_a(self, value) -> None:
+        pass
+
+    @property
+    def t_ref(self) -> float:
+        """Model activation energy."""
+        return self._t_r
+
+    @t_ref.setter
+    def t_ref(self, value) -> None:
+        if not isinstance(value, NUMERICAL_TYPES):
+            raise TypeError(f'Reference temperature must be a numerical type, not a {type(value)}')
+        elif value <= -CELSIUS_TO_KELVIN_OFFSET:
+            raise ValueError('Reference temperature must be greater than absolute zero.')
+
+        self._t_r = float(value) + CELSIUS_TO_KELVIN_OFFSET
 
     def calc_shift_factor(self, temp: (float | np.ndarray)) -> (float | np.ndarray):
         """Calculate the time-temperature position horizontal shift factor at temperature.
@@ -278,7 +294,7 @@ class Material():
 
         if not isinstance(value, NUMERICAL_TYPES):
             raise TypeError(f'Melt transition temperature must be a numeric type, not a {type(value)}')
-        elif value + CELSIUS_TO_KELVIN_OFFSET < 0:
+        elif value <= -CELSIUS_TO_KELVIN_OFFSET:
             raise ValueError('Melt transition temperature must be greater than absolute zero.')
 
         self._melt_transition = float(value)
@@ -292,7 +308,7 @@ class Material():
     def extrusion_temp(self, value: float) -> None:
         if not isinstance(value, NUMERICAL_TYPES):
             raise TypeError(f'Extruder temperature setpoint must be a numeric type, not a {type(value)}')
-        elif value + CELSIUS_TO_KELVIN_OFFSET < 0:
+        elif value <= -CELSIUS_TO_KELVIN_OFFSET:
             raise ValueError('Extruder temperature setpoint must be greater than absolute zero.')
 
         self._extrusion_temp = float(value)
