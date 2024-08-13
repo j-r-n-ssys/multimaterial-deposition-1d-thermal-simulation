@@ -198,12 +198,12 @@ class Material():
         self._density = float(value)
 
     @property
-    def thermal_conducitivity(self) -> float:
+    def thermal_conductivity(self) -> float:
         """Thermal conducitivity [W/m-K]."""
         return self._thermal_conductivity
 
-    @thermal_conducitivity.setter
-    def thermal_conducitivity(self, value: float) -> None:
+    @thermal_conductivity.setter
+    def thermal_conductivity(self, value: float) -> None:
         if not isinstance(value, float):
             raise TypeError('Thermal conducitivity must be a numeric type.')
         elif float(value) <= 0:
@@ -214,7 +214,7 @@ class Material():
     @property
     def specific_heat_capacity(self) -> float:
         """Specific heat capacity []."""
-        pass
+        return self._specific_heat_capacity
 
     @specific_heat_capacity.setter
     def specific_heat_capacity(self, value: float) -> None:
@@ -237,7 +237,7 @@ class Material():
         elif value + CELSIUS_TO_KELVIN_OFFSET < 0:
             raise ValueError('Glass transition temperature must be greater than absolute zero.')
 
-        self._glass_transition = value
+        self._glass_transition = float(value)
 
     @property
     def melt_transition(self) -> float | None:
@@ -256,7 +256,7 @@ class Material():
         elif value + CELSIUS_TO_KELVIN_OFFSET < 0:
             raise ValueError('Melt transition temperature must be greater than absolute zero.')
 
-        self._melt_transition = value
+        self._melt_transition = float(value)
 
     @property
     def extrusion_temp(self) -> float:
@@ -270,7 +270,7 @@ class Material():
         elif value + CELSIUS_TO_KELVIN_OFFSET < 0:
             raise ValueError('Extruder temperature setpoint must be greater than absolute zero.')
 
-        self._extrusion_temp = value
+        self._extrusion_temp = float(value)
 
     @property
     def emissivity(self) -> float:
@@ -288,22 +288,22 @@ class Material():
         elif not (0.0 <= value <= 1.0):
             raise ValueError('Emissivity must be between 0 and 1.')
 
-        self._emmisivity = value
+        self._emmisivity = float(value)
 
     @property
     def volumetric_heat_capacity(self) -> float:
         """Volumetric heat capacity [J/cu.m-K]."""
-        return self.density * self.specific_heat_capacity  # [J/m3-K]
+        return self._density * self._specific_heat_capacity  # [J/m3-K]
 
     @property
     def thermal_effusivity(self) -> float:
         """Thermal effusivity []. """
-        return math.sqrt(self.thermal_conductivity * self.volumetric_heat_capacity)
+        return math.sqrt(self._thermal_conductivity * self.volumetric_heat_capacity)
 
     @property
     def thermal_diffusivity(self) -> float:
         """Thermal diffusivity [sq.m/s]."""
-        return self.thermal_conductivity / self.volumetric_heat_capacity  # [m2/s]
+        return self._thermal_conductivity / self.volumetric_heat_capacity  # [m2/s]
 
     @property
     def adhesion_model(self) -> (WilliamLandelFerryModel | ArrheniusModel | None):
