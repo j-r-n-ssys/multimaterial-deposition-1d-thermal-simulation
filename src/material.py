@@ -146,66 +146,149 @@ class Material():
         melt_transition: float,
         extrusion_temp: float,
         emissivity: float,
-        adhesion_model: None | ArrheniusModel | WilliamLandelFerryModel = None,
+        adhesion_model: ArrheniusModel | WilliamLandelFerryModel | None = None,
     ):
         """Init."""
 
         if not isinstance(name, str):
             raise TypeError('Name must be a string.')
 
-        self.long_name = str(name)
+        self.name = name
 
-        if not isinstance(density, NUMERICAL_TYPES):
-            raise TypeError('Density must be type float.')
+        self.density = density
 
-        if density < 0.0:
+        self.thermal_conductivity = thermal_conductivity
+
+        self.specific_heat_capacity = specific_heat_capacity
+
+        self.glass_transition = glass_transition
+
+        self.melt_transition = melt_transition
+
+        self.extrusion_temp = extrusion_temp
+
+        self.emmisivity = emissivity
+
+        self._adhesion_model = adhesion_model
+
+    @property
+    def name(self) -> str:
+        """Name."""
+        return self._long_name
+
+    @name.setter
+    def name(self, value: str) -> None:
+        if not isinstance(value, str):
+            raise TypeError('Name must be a string.')
+
+        self._long_name = value
+
+    @property
+    def density(self) -> float:
+        """Density [kg/cu.m]"""
+        return self._density
+
+    @density.setter
+    def density(self, value: float) -> None:
+        if not isinstance(value, NUMERICAL_TYPES):
+            raise TypeError('Density must be a numeric type.')
+        elif float(value) <= 0.0:
             raise ValueError('Density must be greater than zero.')
 
-        self.density = float(density)  # [kg/m3]
+        self._density = float(value)
 
-        if not isinstance(thermal_conductivity, NUMERICAL_TYPES):
-            raise TypeError('Thermal conductivity must be type float.')
+    @property
+    def thermal_conducitivity(self) -> float:
+        """Thermal conducitivity [W/m-K]."""
+        return self._thermal_conductivity
 
-        if thermal_conductivity < 0.0:
-            raise ValueError('Thermal conducitivty must be greater than zero.')
+    @thermal_conducitivity.setter
+    def thermal_conducitivity(self, value: float) -> None:
+        if not isinstance(value, float):
+            raise TypeError('Thermal conducitivity must be a numeric type.')
+        elif float(value) <= 0:
+            raise ValueError('Thermal conducitivity must be greater than zero.')
 
-        self.thermal_conductivity = float(thermal_conductivity)  # [W/m-K]
+        self._thermal_conductivity = float(value)
 
-        if not isinstance(specific_heat_capacity, NUMERICAL_TYPES):
+    @property
+    def specific_heat_capacity(self) -> float:
+        """Specific heat capacity []."""
+        pass
+
+    @specific_heat_capacity.setter
+    def specific_heat_capacity(self, value: float) -> None:
+        if not isinstance(value, NUMERICAL_TYPES):
             raise TypeError('Specific heat capacity must be type float.')
+        elif float(value) <= 0.0:
+            raise ValueError('Specific heat capacity must be greater than zero.')
 
-        if specific_heat_capacity < 0.0:
-            raise ValueError('Specific heater capacity must be greater than zero.')
+        self._specific_heat_capacity = float(value)
 
-        self.specific_heat_capacity = float(specific_heat_capacity)
+    @property
+    def glass_transition(self) -> float:
+        """Glass transition [degC]."""
+        return self._glass_transition
 
-        if not isinstance(glass_transition, NUMERICAL_TYPES):
-            raise TypeError('Glass transition temperature must be type float.')
+    @glass_transition.setter
+    def glass_transition(self, value: float) -> None:
+        if not isinstance(value, NUMERICAL_TYPES):
+            raise TypeError('Glass transition temperature must be a numeric type.')
+        elif value + CELSIUS_TO_KELVIN_OFFSET < 0:
+            raise ValueError('Glass transition temperature must be greater than absolute zero.')
 
-        self.glass_transition = float(glass_transition)  # [K]
+        self._glass_transition = value
 
-        if not isinstance(melt_transition, (NoneType, int, float)):
-            raise TypeError('Melt temperature must be type float.')
+    @property
+    def melt_transition(self) -> float | None:
+        """Melt transition [degC]."""
+        return self._melt_transition
 
-        self.melt_transition = float(melt_transition) if not isinstance(melt_transition, NoneType) else None
+    @melt_transition.setter
+    def melt_transition(self, value: float) -> None:
 
-        if not isinstance(extrusion_temp, NUMERICAL_TYPES):
-            raise TypeError('Extrusion temperature must be type float.')
+        if value is None:
+            self._melt_transition = None
+            return
 
-        self.extrusion_temp = float(extrusion_temp)  # [K]
+        if not isinstance(value, NUMERICAL_TYPES):
+            raise TypeError('Melt transition temperature must be a numeric type.')
+        elif value + CELSIUS_TO_KELVIN_OFFSET < 0:
+            raise ValueError('Melt transition temperature must be greater than absolute zero.')
 
-        if not isinstance(emissivity, (NoneType, int, float)):
-            raise TypeError('Emissivity must be type float.')
+        self._melt_transition = value
 
-        if not isinstance(emissivity, NoneType) and (emissivity < 0.0 or emissivity > 1.0):
+    @property
+    def extrusion_temp(self) -> float:
+        """Extruder temperature setpoint [degC]."""
+        return self._extrusion_temp
+
+    @extrusion_temp.setter
+    def extrusion_temp(self, value: float) -> None:
+        if not isinstance(value, NUMERICAL_TYPES):
+            raise TypeError('Extruder temperature setpoint must be a numeric type.')
+        elif value + CELSIUS_TO_KELVIN_OFFSET < 0:
+            raise ValueError('Extruder temperature setpoint must be greater than absolute zero.')
+
+        self._extrusion_temp = value
+
+    @property
+    def emissivity(self) -> float:
+        """Emissivity [0.0-1.0]."""
+        return self._emmisivity
+
+    @emissivity.setter
+    def emissivity(self, value: float) -> None:
+        if value is None:
+            self._emmisivity = None
+            return
+
+        if not isinstance(value, NUMERICAL_TYPES):
+            raise TypeError('Emissivity must be a numeric type.')
+        elif not (0.0 <= value <= 1.0):
             raise ValueError('Emissivity must be between 0 and 1.')
 
-        self.emmisivity = float(emissivity) if not isinstance(emissivity, NoneType) else None  # [0.0-1.0]
-
-        if not isinstance(adhesion_model, (NoneType, ArrheniusModel, WilliamLandelFerryModel)):
-            raise TypeError('adhesion_model must be none, or an Arrhenius model or WLF model instance')
-
-        self._adhesion_model: WilliamLandelFerryModel | ArrheniusModel | None = None
+        self._emmisivity = value
 
     @property
     def volumetric_heat_capacity(self) -> float:
@@ -223,14 +306,18 @@ class Material():
         return self.thermal_conductivity / self.volumetric_heat_capacity  # [m2/s]
 
     @property
-    def adhesion_model(self) -> (WilliamLandelFerryModel | ArrheniusModel):
+    def adhesion_model(self) -> (WilliamLandelFerryModel | ArrheniusModel | None):
         """Adhesion model instance."""
         return self._adhesion_model
 
     @adhesion_model.setter
-    def adhesion_model(self, adhesion_model: WilliamLandelFerryModel | ArrheniusModel):
+    def adhesion_model(self, adhesion_model: WilliamLandelFerryModel | ArrheniusModel | None):
+        if adhesion_model is None:
+            adhesion_model = None
+            return
+
         if not isinstance(adhesion_model, ADHESION_MODELS):
-            raise type(f'adhesion_model must be an adhesion model instance, not {type(adhesion_model)}')
+            raise type(f'Adhesion model must be an adhesion model instance, not {type(adhesion_model)}')
 
         self._adhesion_model = adhesion_model
 
