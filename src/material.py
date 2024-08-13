@@ -368,7 +368,7 @@ class Material():
     @property
     def has_adhesion_model(self) -> bool:
         return self._adhesion_model is not None
-    
+
     def __str__(self) -> str:
         return self._long_name
 
