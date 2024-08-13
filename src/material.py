@@ -6,7 +6,6 @@ import numpy as np
 
 from abc import abstractmethod
 from os.path import basename as get_module_fname
-from types import NoneType
 
 NUMERICAL_TYPES = (int, float)
 
@@ -98,7 +97,7 @@ class WilliamLandelFerryModel(AdhesionModelBase):
         if not isinstance(temp, (int, float, np.ndarray)):
             raise TypeError(f'temp must be a numerical type or array, not a {type(temp)}')
 
-        temp += CELSIUS_TO_KELVIN_OFFSET
+        temp = temp + CELSIUS_TO_KELVIN_OFFSET
 
         if isinstance(temp, NUMERICAL_TYPES):
             return 10**(-self._c_1 * (temp - self._t_r) / (self._c_2 + (temp - self._t_r)))
@@ -125,12 +124,11 @@ class ArrheniusModel(AdhesionModelBase):
             t_ref (float): Reference temperature [degC].
         """
 
-        if not isinstance(e_a, NUMERICAL_TYPES):
-            raise TypeError(f'Activation energy must be a numerical type, not {type(e_a)}')
-        elif e_a < 0:
-            raise ValueError('Activation energy must be a positive value.')
-
+        # Type/value execptions are handled by the property.
         self.e_a = e_a
+
+        # Type/value execptions are handled by the property.
+        self.t_ref = t_ref
 
     @property
     def e_a(self) -> float:
@@ -139,7 +137,12 @@ class ArrheniusModel(AdhesionModelBase):
 
     @e_a.setter
     def e_a(self, value) -> None:
-        pass
+        if not isinstance(value, NUMERICAL_TYPES):
+            raise TypeError(f'Activation energy must be a numerical type, not {type(value)}')
+        elif value < 0:
+            raise ValueError('Activation energy must be a positive value.')
+
+        self._e_a = float(value)
 
     @property
     def t_ref(self) -> float:
@@ -165,7 +168,7 @@ class ArrheniusModel(AdhesionModelBase):
             float  |  np.ndarray: TTS horizontal shift factor.
         """
 
-        f = -self._e_a / 2.303 * (self.UNIVERSAL_GAS_CONSTANT)
+        f = -self._e_a / (2.303 * self.UNIVERSAL_GAS_CONSTANT)
 
         if isinstance(temp, float):
             return 10**(f * (1 / (temp + CELSIUS_TO_KELVIN_OFFSET) - 1 / self._t_r))
@@ -365,6 +368,9 @@ class Material():
     @property
     def has_adhesion_model(self) -> bool:
         return self._adhesion_model is not None
+    
+    def __str__(self) -> str:
+        return self._long_name
 
 
 def calculate_healing(material: Material, time_arr: np.ndarray, temp_arr: np.ndarray) -> float:
@@ -434,9 +440,9 @@ QSR = Material(
     extrusion_temp=295,
     emissivity=None,
     adhesion_model=WilliamLandelFerryModel(
-        5.78,
-        182,
-        200,
+        c_1=5.78,
+        c_2=182,
+        t_ref=200,
     ),
 )
 
@@ -450,8 +456,8 @@ F375M = Material(
     extrusion_temp=235,
     emissivity=None,
     adhesion_model=ArrheniusModel(
-        5.78,
-        200.0,
+        e_a=48656,
+        t_ref=200.0,
     ),
 )
 

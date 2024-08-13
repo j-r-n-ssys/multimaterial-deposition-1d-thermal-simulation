@@ -117,6 +117,10 @@ def solve_system(
         tuple[np.ndarray, np.ndarray]: Tuple of time array, time-temperature array. 
     """
 
+    lg.info('Solving system: ')
+    lg.info(pad_kv_pair_str('Extrudate', m_1))
+    lg.info(pad_kv_pair_str('Base', m_2))
+
     max_thermal_diffusivity = max(m_1.thermal_diffusivity, m_2.thermal_diffusivity)
 
     if time_step is None:
@@ -232,6 +236,8 @@ DELTA_Z = LAYER_THICKNESS / NODES_PER_LAYER
 
 lg.info(pad_kv_pair_str('node spacing', DELTA_Z))
 
+print()
+
 CONVECTION_COEFF = 50
 
 CONTACT_TRANSFER_COEFF = 1e10
@@ -252,9 +258,11 @@ t, res = solve_system(m_top, m_bot, T)
 
 interface_temp = calc_interface_temperature(m_top, m_bot, res, algorithm='average')
 
-lg.info('weld strength = %s', calculate_healing(m_top, t, interface_temp))
+lg.info(pad_kv_pair_str('weld strength', calculate_healing(m_top, t, interface_temp)))
 
 plt.semilogx(t, interface_temp, label='S-S')
+
+print()
 
 m_top = F375M
 
@@ -268,9 +276,11 @@ t, res = solve_system(m_top, m_bot, T)
 
 interface_temp = calc_interface_temperature(m_top, m_bot, res, algorithm='average')
 
-lg.info('weld strength = %s', calculate_healing(m_top, t, interface_temp))
+lg.info(pad_kv_pair_str('weld strength', calculate_healing(m_top, t, interface_temp)))
 
 plt.semilogx(t, interface_temp, label='M-M')
+
+print()
 
 m_top = F375M
 
@@ -284,9 +294,11 @@ t, res = solve_system(m_top, m_bot, T, time_step=2.5e-6)
 
 interface_temp = calc_interface_temperature(m_top, m_bot, res, algorithm='average')
 
-lg.info('weld strength = %s', calculate_healing(m_top, t, interface_temp))
+lg.info(pad_kv_pair_str('weld strength', calculate_healing(m_top, t, interface_temp)))
 
 plt.semilogx(t, interface_temp, label='M-S')
+
+print()
 
 m_top = QSR
 
@@ -300,7 +312,7 @@ t, res = solve_system(m_top, m_bot, T)
 
 interface_temp = calc_interface_temperature(m_top, m_bot, res, algorithm='average')
 
-lg.info('weld strength = %s', calculate_healing(m_top, t, interface_temp))
+lg.info(pad_kv_pair_str('weld strength', calculate_healing(m_top, t, interface_temp)))
 
 plt.semilogx(t, interface_temp, label='S-M')
 
