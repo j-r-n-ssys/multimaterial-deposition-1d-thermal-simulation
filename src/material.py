@@ -17,7 +17,7 @@ class AdhesionModelBase():
     """This abstract class is a base class for adhesion models."""
 
     @abstractmethod
-    def get_shift_factor(self) -> (float | np.ndarray):
+    def calc_shift_factor(self) -> (float | np.ndarray):
         ...
 
 
@@ -56,7 +56,7 @@ class WilliamLandelFerryModel(AdhesionModelBase):
         self._c_2 = float(c_2)
         self._t_r = float(t_ref) + CELSIUS_TO_KELVIN_OFFSET
 
-    def get_shift_factor(self, temp: (int | float | np.ndarray)) -> (float | np.ndarray):
+    def calc_shift_factor(self, temp: (int | float | np.ndarray)) -> (float | np.ndarray):
         """Calculate the time-temperature position horizontal shift factor at temperature.
 
         Args:
@@ -110,7 +110,7 @@ class ArrheniusModel(AdhesionModelBase):
 
         self._t_r = t_ref + CELSIUS_TO_KELVIN_OFFSET
 
-    def get_shift_factor(self, temp: (float | np.ndarray)) -> (float | np.ndarray):
+    def calc_shift_factor(self, temp: (float | np.ndarray)) -> (float | np.ndarray):
         """Calculate the time-temperature position horizontal shift factor at temperature.
 
         Args:
@@ -354,7 +354,7 @@ def calculate_healing(material: Material, time_arr: np.ndarray, temp_arr: np.nda
     elif len(temp_arr) != len(time_arr):
         raise ValueError('temp_arr must have the same number of elements as time_arr.')
 
-    shift_factors = material.adhesion_model.get_shift_factor(temp_arr)
+    shift_factors = material.adhesion_model.calc_shift_factor(temp_arr)
 
     z = np.divide(1.0, 2.0 * np.pi * shift_factors)
 
