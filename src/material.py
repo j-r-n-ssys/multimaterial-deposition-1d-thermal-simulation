@@ -156,7 +156,7 @@ class ArrheniusModel(AdhesionModelBase):
         elif isinstance(temp, np.ndarray):
             return np.power(10, f * (np.divide(1, temp + CELSIUS_TO_KELVIN_OFFSET) - (1 / self._t_r)))
         else:
-            raise TypeError('Temperature argument must be a numerical type or numerical array.')
+            raise TypeError(f'Temperature argument must be a numerical type or numerical array, not a {type(temp)}')
 
 
 ADHESION_MODELS = (WilliamLandelFerryModel, ArrheniusModel)
@@ -178,9 +178,6 @@ class Material():
         adhesion_model: ArrheniusModel | WilliamLandelFerryModel | None = None,
     ):
         """Init."""
-
-        if not isinstance(name, str):
-            raise TypeError('Name must be a string.')
 
         self.name = name
 
@@ -206,7 +203,7 @@ class Material():
         return self._long_name
 
     @name.setter
-    def name(self, value: str) -> None:
+    def name(self, value) -> None:
         if not isinstance(value, str):
             raise TypeError('Name must be a string.')
 
@@ -218,9 +215,9 @@ class Material():
         return self._density
 
     @density.setter
-    def density(self, value: float) -> None:
+    def density(self, value) -> None:
         if not isinstance(value, NUMERICAL_TYPES):
-            raise TypeError('Density must be a numeric type.')
+            raise TypeError(f'Density must be a numeric type, not a {type(value)}')
         elif float(value) <= 0.0:
             raise ValueError('Density must be greater than zero.')
 
@@ -232,9 +229,9 @@ class Material():
         return self._thermal_conductivity
 
     @thermal_conductivity.setter
-    def thermal_conductivity(self, value: float) -> None:
+    def thermal_conductivity(self, value) -> None:
         if not isinstance(value, float):
-            raise TypeError('Thermal conducitivity must be a numeric type.')
+            raise TypeError(f'Thermal conducitivity must be a numeric type, not a {type(value)}')
         elif float(value) <= 0:
             raise ValueError('Thermal conducitivity must be greater than zero.')
 
@@ -246,9 +243,9 @@ class Material():
         return self._specific_heat_capacity
 
     @specific_heat_capacity.setter
-    def specific_heat_capacity(self, value: float) -> None:
+    def specific_heat_capacity(self, value) -> None:
         if not isinstance(value, NUMERICAL_TYPES):
-            raise TypeError('Specific heat capacity must be type float.')
+            raise TypeError(f'Specific heat capacity must be type float, not a {type(value)}')
         elif float(value) <= 0.0:
             raise ValueError('Specific heat capacity must be greater than zero.')
 
@@ -260,9 +257,9 @@ class Material():
         return self._glass_transition
 
     @glass_transition.setter
-    def glass_transition(self, value: float) -> None:
+    def glass_transition(self, value) -> None:
         if not isinstance(value, NUMERICAL_TYPES):
-            raise TypeError('Glass transition temperature must be a numeric type.')
+            raise TypeError(f'Glass transition temperature must be a numeric type, not a {type(value)}')
         elif value + CELSIUS_TO_KELVIN_OFFSET < 0:
             raise ValueError('Glass transition temperature must be greater than absolute zero.')
 
@@ -274,14 +271,13 @@ class Material():
         return self._melt_transition
 
     @melt_transition.setter
-    def melt_transition(self, value: float) -> None:
-
+    def melt_transition(self, value) -> None:
         if value is None:
             self._melt_transition = None
             return
 
         if not isinstance(value, NUMERICAL_TYPES):
-            raise TypeError('Melt transition temperature must be a numeric type.')
+            raise TypeError(f'Melt transition temperature must be a numeric type, not a {type(value)}')
         elif value + CELSIUS_TO_KELVIN_OFFSET < 0:
             raise ValueError('Melt transition temperature must be greater than absolute zero.')
 
@@ -295,7 +291,7 @@ class Material():
     @extrusion_temp.setter
     def extrusion_temp(self, value: float) -> None:
         if not isinstance(value, NUMERICAL_TYPES):
-            raise TypeError('Extruder temperature setpoint must be a numeric type.')
+            raise TypeError(f'Extruder temperature setpoint must be a numeric type, not a {type(value)}')
         elif value + CELSIUS_TO_KELVIN_OFFSET < 0:
             raise ValueError('Extruder temperature setpoint must be greater than absolute zero.')
 
@@ -313,7 +309,7 @@ class Material():
             return
 
         if not isinstance(value, NUMERICAL_TYPES):
-            raise TypeError('Emissivity must be a numeric type.')
+            raise TypeError(f'Emissivity must be a numeric type, not a {type(value)}')
         elif not (0.0 <= value <= 1.0):
             raise ValueError('Emissivity must be between 0 and 1.')
 
