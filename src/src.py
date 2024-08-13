@@ -118,8 +118,8 @@ def solve_system(
     """
 
     lg.info('Solving system: ')
-    lg.info(pad_kv_pair_str('Extrudate', m_1))
-    lg.info(pad_kv_pair_str('Base', m_2))
+    lg.info(pad_kv_pair_str('material: extr', m_1))
+    lg.info(pad_kv_pair_str('material: base', m_2))
 
     max_thermal_diffusivity = max(m_1.thermal_diffusivity, m_2.thermal_diffusivity)
 

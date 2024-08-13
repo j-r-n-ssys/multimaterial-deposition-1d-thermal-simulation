@@ -456,7 +456,7 @@ F375M = Material(
     extrusion_temp=235,
     emissivity=None,
     adhesion_model=ArrheniusModel(
-        e_a=48656,
+        e_a=48.656,
         t_ref=200.0,
     ),
 )
