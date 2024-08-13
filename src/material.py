@@ -37,24 +37,53 @@ class WilliamLandelFerryModel(AdhesionModelBase):
             c_1 (float): WLF horizontal shift factor model empircal constant 1.
             c_2 (float): WLF horizontal shift factor model empircal constant 2.
             t_ref (float): WLF horizontal shift factor model reference temperature [degC]. 
-            t_glass (float | None): Glass transition temperature [degC].
         """
 
-        if not isinstance(c_1, NUMERICAL_TYPES):
-            raise TypeError(f'WLF Model empirical constant C1 must be a numerical type, not {type(c_1)}.')
-        elif not isinstance(c_2, NUMERICAL_TYPES):
-            raise TypeError(f'WLF Model empirical constant C2 must be a numerical type, not {type(c_2)}.')
-        elif c_1 <= 0 or c_2 <= 0:
-            raise ValueError('WLF Model empirical constants C1 and C2 must be greater than zero.')
+        self.c_1 = c_1
+        self.c_2 = c_2
+        self.t_ref = t_ref
 
-        if not isinstance(t_ref, NUMERICAL_TYPES):
-            raise TypeError(f'Temperature T_ref mmust be a numerical type, not {type(t_ref)}.')
-        elif t_ref < -CELSIUS_TO_KELVIN_OFFSET:
+    @property
+    def c_1(self) -> float:
+        """Model empirical constant C1. """
+        return self._c_1
+
+    @c_1.setter
+    def c_1(self, value) -> None:
+        if not isinstance(value, NUMERICAL_TYPES):
+            raise TypeError(f'C1 must be a numerical type, not a {type(value)}')
+        elif value <= 0:
+            raise ValueError('C1 must be greater than zero.')
+
+        self._c_1 = float(value)
+
+    @property
+    def c_2(self) -> float:
+        """Model empirical constant C2."""
+        return self._c_2
+
+    @c_2.setter
+    def c_2(self, value) -> None:
+        if not isinstance(value, NUMERICAL_TYPES):
+            raise TypeError(f'C2 must be a numerical type, not a {type(value)}')
+        elif value <= 0:
+            raise ValueError('C2 must be greater than zero.')
+
+        self._c_2 = float(value)
+
+    @property
+    def t_ref(self) -> float:
+        """Reference temperature [degC]."""
+        return self._t_r - CELSIUS_TO_KELVIN_OFFSET
+
+    @t_ref.setter
+    def t_ref(self, value) -> None:
+        if not isinstance(value, NUMERICAL_TYPES):
+            raise TypeError(f'Temperature T_ref mmust be a numerical type, not a {type(value)}')
+        elif value < -CELSIUS_TO_KELVIN_OFFSET:
             raise ValueError('Reference temperature T_ref must be greater than absolute zero.')
 
-        self._c_1 = float(c_1)
-        self._c_2 = float(c_2)
-        self._t_r = float(t_ref) + CELSIUS_TO_KELVIN_OFFSET
+        self._t_r = float(value) + CELSIUS_TO_KELVIN_OFFSET
 
     def calc_shift_factor(self, temp: (int | float | np.ndarray)) -> (float | np.ndarray):
         """Calculate the time-temperature position horizontal shift factor at temperature.
@@ -69,7 +98,7 @@ class WilliamLandelFerryModel(AdhesionModelBase):
         if not isinstance(temp, (int, float, np.ndarray)):
             raise TypeError(f'temp must be a numerical type or array, not a {type(temp)}')
 
-        temp = temp + CELSIUS_TO_KELVIN_OFFSET
+        temp += CELSIUS_TO_KELVIN_OFFSET
 
         if isinstance(temp, NUMERICAL_TYPES):
             return 10**(-self._c_1 * (temp - self._t_r) / (self._c_2 + (temp - self._t_r)))
