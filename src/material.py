@@ -25,7 +25,12 @@ class WilliamLandelFerryModel(AdhesionModelBase):
     """This object represents a William-Landel-Ferry time-temperature superposition horizontal shift factor estimation 
     model."""
 
-    def __init__(self, c_1: float, c_2: float, t_ref: float) -> None:
+    def __init__(
+        self,
+        c_1: float,
+        c_2: float,
+        t_ref: float,
+    ) -> None:
         """Init.
 
         Args:
@@ -79,7 +84,11 @@ class ArrheniusModel(AdhesionModelBase):
 
     UNIVERSAL_GAS_CONSTANT = 8.31446261815324  # J/K-mol
 
-    def __init__(self, e_a: float, t_ref: float) -> None:
+    def __init__(
+        self,
+        e_a: float,
+        t_ref: float,
+    ) -> None:
         """Init.
 
         Args:
@@ -98,6 +107,7 @@ class ArrheniusModel(AdhesionModelBase):
             raise ValueError('t_ref must be greater than absolute zero.')
 
         self._e_a = e_a
+
         self._t_r = t_ref + CELSIUS_TO_KELVIN_OFFSET
 
     def get_shift_factor(self, temp: (float | np.ndarray)) -> (float | np.ndarray):
@@ -126,8 +136,18 @@ ADHESION_MODELS = (WilliamLandelFerryModel, ArrheniusModel)
 class Material():
     """This object represents a material."""
 
-    def __init__(self, name: str, density: float, thermal_conductivity: float, specific_heat_capacity: float,
-                 glass_transition: float, melt_transition: float, extrusion_temp: float, emissivity: float):
+    def __init__(
+        self,
+        name: str,
+        density: float,
+        thermal_conductivity: float,
+        specific_heat_capacity: float,
+        glass_transition: float,
+        melt_transition: float,
+        extrusion_temp: float,
+        emissivity: float,
+        adhesion_model: None | ArrheniusModel | WilliamLandelFerryModel = None,
+    ):
         """Init."""
 
         if not isinstance(name, str):
@@ -181,6 +201,9 @@ class Material():
             raise ValueError('Emissivity must be between 0 and 1.')
 
         self.emmisivity = float(emissivity) if not isinstance(emissivity, NoneType) else None  # [0.0-1.0]
+
+        if not isinstance(adhesion_model, (NoneType, ArrheniusModel, WilliamLandelFerryModel)):
+            raise TypeError('adhesion_model must be none, or an Arrhenius model or WLF model instance')
 
         self._adhesion_model: WilliamLandelFerryModel | ArrheniusModel | None = None
 
@@ -253,22 +276,56 @@ def calculate_healing(material: Material, time_arr: np.ndarray, temp_arr: np.nda
     res = abs(np.sum(np.trapz(y=z, x=time_arr)))**0.25
 
     if res > 1:
-        lg.info('Estimated relative weld strength Adhesion ratio exceeds 1 ( R = %s).', res)
+        lg.info('Estimated relative weld strength adhesion ratio exceeds 1 ( R = %s).', res)
 
-    return min(res, 1)
+    floor_res = min(res, 1)
+
+    return floor_res
 
 
 # https://thermtest.com/thermal-resources/materials-database
 
-ABS = Material('ABS', 1040, 0.209, 1506, 105, None, 260, None)
+ABS = Material(
+    name='ABS',
+    density=1040,
+    thermal_conductivity=0.209,
+    specific_heat_capacity=1506,
+    glass_transition=105,
+    melt_transition=None,
+    extrusion_temp=260,
+    emissivity=None,
+)
 
-QSR = Material('QSR', 1180, 0.1, 1950, 165, None, 295, None)
+QSR = Material(
+    name='QSR',
+    density=1180,
+    thermal_conductivity=0.1,
+    specific_heat_capacity=1950,
+    glass_transition=165,
+    melt_transition=None,
+    extrusion_temp=295,
+    emissivity=None,
+    adhesion_model=WilliamLandelFerryModel(
+        5.78,
+        182,
+        200,
+    ),
+)
 
-QSR.adhesion_model = WilliamLandelFerryModel(5.78, 182, 200)
-
-F375M = Material('F375M Sinterable', 6174.2, 10.6, 942.8, -30.0, 170, 235, None)
-
-F375M.adhesion_model = ArrheniusModel(5.78, 200.0)
+F375M = Material(
+    name='F375M Sinterable',
+    density=6174.2,
+    thermal_conductivity=10.6,
+    specific_heat_capacity=942.8,
+    glass_transition=-30.0,
+    melt_transition=170,
+    extrusion_temp=235,
+    emissivity=None,
+    adhesion_model=ArrheniusModel(
+        5.78,
+        200.0,
+    ),
+)
 
 if __name__ == '__main__':
     lg.warning('Module %s is not intended to be run as standalone module.', get_module_fname(__file__))
