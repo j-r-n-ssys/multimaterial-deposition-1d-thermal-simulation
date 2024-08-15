@@ -19,6 +19,34 @@ class AdhesionModelBase():
     def calc_shift_factor(self) -> (float | np.ndarray):
         ...
 
+    @property
+    def t_ref(self) -> float:
+        """Model activation energy."""
+        return self._t_r
+
+    @t_ref.setter
+    def t_ref(self, value) -> None:
+        if not isinstance(value, NUMERICAL_TYPES):
+            raise TypeError(f'Reference temperature must be a numerical type, not a {type(value)}.')
+        elif value <= -CELSIUS_TO_KELVIN_OFFSET:
+            raise ValueError('Reference temperature must be greater than absolute zero.')
+
+        self._t_r = float(value) + CELSIUS_TO_KELVIN_OFFSET
+
+    @property
+    def relaxation_freq_at_crossover(self) -> float:
+        """Relaxation time at reference temperature."""
+        return self._omega_r
+
+    @relaxation_freq_at_crossover.setter
+    def relaxation_freq_at_crossover(self, value: float) -> None:
+        if not isinstance(value, NUMERICAL_TYPES):
+            raise TypeError(f'Relaxation frequency at crossover must be a numerical type, not a {type(value)}.')
+        elif value <= 0:
+            raise ValueError('Relaxation frequency at crossover must be greater than zero.')
+
+        self._omega_r = value
+
 
 class WilliamLandelFerryModel(AdhesionModelBase):
     """This object represents a William-Landel-Ferry time-temperature superposition horizontal shift factor estimation 
@@ -29,6 +57,7 @@ class WilliamLandelFerryModel(AdhesionModelBase):
         c_1: float,
         c_2: float,
         t_ref: float,
+        omega_r: float,
     ) -> None:
         """Init.
 
@@ -36,11 +65,20 @@ class WilliamLandelFerryModel(AdhesionModelBase):
             c_1 (float): WLF horizontal shift factor model empircal constant 1.
             c_2 (float): WLF horizontal shift factor model empircal constant 2.
             t_ref (float): WLF horizontal shift factor model reference temperature [degC]. 
+            omega_r (float): Relaxation angular frequency at tan(delta) = 0 [rad/s].
         """
 
+        # Type/value execptions are handled by the property.
         self.c_1 = c_1
+
+        # Type/value execptions are handled by the property.
         self.c_2 = c_2
+
+        # Type/value execptions are handled by the property.
         self.t_ref = t_ref
+
+        # Type/value execptions are handled by the property.
+        self._omega_r = omega_r
 
     @property
     def c_1(self) -> float:
@@ -69,20 +107,6 @@ class WilliamLandelFerryModel(AdhesionModelBase):
             raise ValueError('C2 must be greater than zero.')
 
         self._c_2 = float(value)
-
-    @property
-    def t_ref(self) -> float:
-        """Reference temperature [degC]."""
-        return self._t_r - CELSIUS_TO_KELVIN_OFFSET
-
-    @t_ref.setter
-    def t_ref(self, value) -> None:
-        if not isinstance(value, NUMERICAL_TYPES):
-            raise TypeError(f'Temperature T_ref mmust be a numerical type, not a {type(value)}')
-        elif value < -CELSIUS_TO_KELVIN_OFFSET:
-            raise ValueError('Reference temperature T_ref must be greater than absolute zero.')
-
-        self._t_r = float(value) + CELSIUS_TO_KELVIN_OFFSET
 
     def calc_shift_factor(self, temp: (int | float | np.ndarray)) -> (float | np.ndarray):
         """Calculate the time-temperature position horizontal shift factor at temperature.
@@ -116,12 +140,14 @@ class ArrheniusModel(AdhesionModelBase):
         self,
         e_a: float,
         t_ref: float,
+        omega_r: float,
     ) -> None:
         """Init.
 
         Args:
             e_a (float): Activation energy.
             t_ref (float): Reference temperature [degC].
+            omega_r (float): Relaxation angular frequency at tan(delta) = 0 [rad/s].
         """
 
         # Type/value execptions are handled by the property.
@@ -129,6 +155,9 @@ class ArrheniusModel(AdhesionModelBase):
 
         # Type/value execptions are handled by the property.
         self.t_ref = t_ref
+
+        # Type/value execptions are handled by the property.
+        self._omega_r = omega_r
 
     @property
     def e_a(self) -> float:
@@ -138,25 +167,11 @@ class ArrheniusModel(AdhesionModelBase):
     @e_a.setter
     def e_a(self, value) -> None:
         if not isinstance(value, NUMERICAL_TYPES):
-            raise TypeError(f'Activation energy must be a numerical type, not {type(value)}')
+            raise TypeError(f'Activation energy must be a numerical type, not {type(value)}.')
         elif value < 0:
             raise ValueError('Activation energy must be a positive value.')
 
         self._e_a = float(value)
-
-    @property
-    def t_ref(self) -> float:
-        """Model activation energy."""
-        return self._t_r
-
-    @t_ref.setter
-    def t_ref(self, value) -> None:
-        if not isinstance(value, NUMERICAL_TYPES):
-            raise TypeError(f'Reference temperature must be a numerical type, not a {type(value)}')
-        elif value <= -CELSIUS_TO_KELVIN_OFFSET:
-            raise ValueError('Reference temperature must be greater than absolute zero.')
-
-        self._t_r = float(value) + CELSIUS_TO_KELVIN_OFFSET
 
     def calc_shift_factor(self, temp: (float | np.ndarray)) -> (float | np.ndarray):
         """Calculate the time-temperature position horizontal shift factor at temperature.
@@ -443,6 +458,7 @@ QSR = Material(
         c_1=5.78,
         c_2=182,
         t_ref=200,
+        omega_r=1,
     ),
 )
 
@@ -458,6 +474,7 @@ F375M = Material(
     adhesion_model=ArrheniusModel(
         e_a=48.656,
         t_ref=200.0,
+        omega_r=1,
     ),
 )
 
