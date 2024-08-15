@@ -505,7 +505,7 @@ QSR = Material(
         c_1=5.78,
         c_2=182,
         t_ref=200,
-        omega_r=28.955,
+        omega_r=4.608,
     ),
 )
 
@@ -521,7 +521,7 @@ F375M = Material(
     adhesion_model=ArrheniusModel(
         e_a=48656,
         t_ref=200.0,
-        omega_r=483.322,
+        omega_r=76.923,
     ),
 )
 
