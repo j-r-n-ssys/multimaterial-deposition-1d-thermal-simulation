@@ -219,7 +219,7 @@ class ArrheniusModel(AdhesionModelBase):
             float  |  np.ndarray: TTS horizontal shift factor(s)
         """
 
-        if not isinstance(temp, NUMERICAL_TYPES + (np.ndarray)):
+        if not isinstance(temp, (int, float, np.ndarray)):
             raise TypeError(f'Temperature must be a numerical type or a numpy array, not {type(temp)}.')
 
         if isinstance(temp, NUMERICAL_TYPES):
