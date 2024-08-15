@@ -322,7 +322,7 @@ plt.xlabel('Time since deposition [s]')
 
 plt.ylabel('Interface temperature [degC]')
 
-plt.xlim([1e-3, 1e1])
+plt.xlim([1e-6, 1e1])
 
 plt.ylim([0, 300])
 
