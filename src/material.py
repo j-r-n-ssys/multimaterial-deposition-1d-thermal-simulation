@@ -70,7 +70,7 @@ class AdhesionModelBase():
 
         a_t = self.calc_shift_factor(temp)
 
-        return 2e3 * np.pi * a_t / self._omega_r
+        return 2 * np.pi * a_t / self._omega_r
 
 
 class WilliamLandelFerryModel(AdhesionModelBase):
@@ -463,9 +463,9 @@ def calculate_healing(material: Material, time_arr: np.ndarray, temp_arr: np.nda
     elif len(temp_arr) != len(time_arr):
         raise ValueError('temp_arr must have the same number of elements as time_arr.')
 
-    shift_factors = material.adhesion_model.calc_shift_factor(temp_arr)
+    relaxation_times = material.adhesion_model.calc_relaxation_time(temp_arr)
 
-    z = np.divide(1.0, 2.0 * np.pi * shift_factors)
+    z = np.divide(1.0, relaxation_times)
 
     z[temp_arr < material.glass_transition] = 0
 
@@ -505,7 +505,7 @@ QSR = Material(
         c_1=5.78,
         c_2=182,
         t_ref=200,
-        omega_r=1,
+        omega_r=28.955,
     ),
 )
 
@@ -519,9 +519,9 @@ F375M = Material(
     extrusion_temp=235,
     emissivity=None,
     adhesion_model=ArrheniusModel(
-        e_a=48.656,
+        e_a=48656,
         t_ref=200.0,
-        omega_r=1,
+        omega_r=483.322,
     ),
 )
 
