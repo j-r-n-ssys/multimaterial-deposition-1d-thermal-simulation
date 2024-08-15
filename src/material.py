@@ -15,10 +15,6 @@ CELSIUS_TO_KELVIN_OFFSET = 273.15
 class AdhesionModelBase():
     """This abstract class is a base class for adhesion models."""
 
-    @abstractmethod
-    def calc_shift_factor(self) -> (float | np.ndarray):
-        ...
-
     @property
     def t_ref(self) -> float:
         """Model activation energy."""
@@ -46,6 +42,35 @@ class AdhesionModelBase():
             raise ValueError('Relaxation frequency at crossover must be greater than zero.')
 
         self._omega_r = value
+
+    @abstractmethod
+    def calc_shift_factor(self, temp: (float | np.ndarray)) -> (float | np.ndarray):
+        ...
+
+    def calc_relaxation_time(self, temp: (float | np.ndarray)) -> (float | np.ndarray):
+        """Calculate the relaxation time at temperature
+
+        Args:
+            temp (float  |  np.ndarray): Temperature [degC].
+
+        Returns:
+            float  |  np.ndarray: Relaxation time(s).
+        """
+
+        if not isinstance(temp, (int, float, np.ndarray)):
+            raise TypeError(f'Temperature must be a numerical type or a numpy array, not {type(temp)}.')
+
+        if isinstance(temp, NUMERICAL_TYPES):
+            if temp < -CELSIUS_TO_KELVIN_OFFSET:
+                raise ValueError('Temperature must be greater than absolute zero')
+
+        if isinstance(temp, np.ndarray):
+            if temp[temp < -CELSIUS_TO_KELVIN_OFFSET].any():
+                raise ValueError('All temperature values must be greater than absolute zero')
+
+        a_t = self.calc_shift_factor(temp)
+
+        return 2e3 * np.pi * a_t / self._omega_r
 
 
 class WilliamLandelFerryModel(AdhesionModelBase):
@@ -119,6 +144,17 @@ class WilliamLandelFerryModel(AdhesionModelBase):
         """
 
         if not isinstance(temp, (int, float, np.ndarray)):
+            raise TypeError(f'Temperature must be a numerical type or a numpy array, not {type(temp)}.')
+
+        if isinstance(temp, NUMERICAL_TYPES):
+            if temp <= -CELSIUS_TO_KELVIN_OFFSET:
+                raise ValueError('Temperature must be greater than absolute zero')
+
+        if isinstance(temp, np.ndarray):
+            if temp[temp <= -CELSIUS_TO_KELVIN_OFFSET].any():
+                raise ValueError('All temperature values must be greater than absolute zero')
+
+        if not isinstance(temp, (int, float, np.ndarray)):
             raise TypeError(f'temp must be a numerical type or array, not a {type(temp)}')
 
         temp = temp + CELSIUS_TO_KELVIN_OFFSET
@@ -180,12 +216,23 @@ class ArrheniusModel(AdhesionModelBase):
             temp (float  |  np.ndarray): Temperature [degC].
 
         Returns:
-            float  |  np.ndarray: TTS horizontal shift factor.
+            float  |  np.ndarray: TTS horizontal shift factor(s)
         """
+
+        if not isinstance(temp, NUMERICAL_TYPES + (np.ndarray)):
+            raise TypeError(f'Temperature must be a numerical type or a numpy array, not {type(temp)}.')
+
+        if isinstance(temp, NUMERICAL_TYPES):
+            if temp <= -CELSIUS_TO_KELVIN_OFFSET:
+                raise ValueError('Temperature must be greater than absolute zero')
+
+        if isinstance(temp, np.ndarray):
+            if temp[temp <= -CELSIUS_TO_KELVIN_OFFSET].any():
+                raise ValueError('All temperature values must be greater than absolute zero')
 
         f = -self._e_a / (2.303 * self.UNIVERSAL_GAS_CONSTANT)
 
-        if isinstance(temp, float):
+        if isinstance(temp, (int, float)):
             return 10**(f * (1 / (temp + CELSIUS_TO_KELVIN_OFFSET) - 1 / self._t_r))
         elif isinstance(temp, np.ndarray):
             return np.power(10, f * (np.divide(1, temp + CELSIUS_TO_KELVIN_OFFSET) - (1 / self._t_r)))
