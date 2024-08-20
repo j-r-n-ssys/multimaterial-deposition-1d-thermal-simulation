@@ -15,8 +15,9 @@ class Formatter(lg.Formatter):
     """Extension of the logging module formatter with prefered datetime formatting. """
 
     def formatTime(self, record, datefmt=None):  #pylint disable=invalid-name
+        """Datetime formatter."""
         ct = self.converter(record.created)
-        if datefmt:
+        if datefmt is not None:
             # support %z and %f in datefmt (struct_time doesn't carry ms or tz)
             datefmt = datefmt.replace('%f', str(datetime.fromtimestamp(record.created).microsecond).zfill(6))
             datefmt = datefmt.replace('%z', time.strftime('%z'))
