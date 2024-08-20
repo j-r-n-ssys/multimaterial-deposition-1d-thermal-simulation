@@ -1,8 +1,7 @@
 """Utility module."""
 
-import logging as lg
 
-from os.path import basename as get_module_name
+from pathlib import Path
 
 DEFAULT_PAD_LENGTH = 30
 
@@ -33,4 +32,4 @@ def pad_kv_pair_str(key: str, value, length: int = DEFAULT_PAD_LENGTH) -> str:
 
 
 if __name__ == '__main__':
-    lg.warning('Module %s is not intended to be run as standalone module.', get_module_name(__file__))
+    print(f'\nModule <{Path(__file__).name}> is not intended to be run as standalone module.')

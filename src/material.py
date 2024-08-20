@@ -5,7 +5,7 @@ import math
 import numpy as np
 
 from abc import abstractmethod
-from os.path import basename as get_module_fname
+from pathlib import Path
 
 NUMERICAL_TYPES = (int, float)
 
@@ -472,7 +472,8 @@ def calculate_healing(material: Material, time_arr: np.ndarray, temp_arr: np.nda
     res = abs(np.sum(np.trapz(y=z, x=time_arr)))**0.25
 
     if res > 1:
-        lg.info('Estimated relative weld strength adhesion ratio exceeds 1 ( R = %s).', res)
+        #lg.info('Estimated relative weld strength adhesion ratio exceeds 1 ( R = %s).', res)
+        pass
 
     floor_res = min(res, 1)
 
@@ -526,4 +527,4 @@ F375M = Material(
 )
 
 if __name__ == '__main__':
-    lg.warning('Module %s is not intended to be run as standalone module.', get_module_fname(__file__))
+    print(f'\nModule <{Path(__file__).name}> is not intended to be run as standalone module.')

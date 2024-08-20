@@ -1,11 +1,12 @@
 """_missing_docstring_"""
 
-import logging as lg
 import math
 import matplotlib.pyplot as plt
 import numpy as np
 
 import hickson
+
+from common import logger as lg
 
 from material import Material, calculate_healing, QSR, F375M
 
@@ -15,8 +16,6 @@ from util import pad_kv_pair_str
 STEFAN_BOLTZMANN_CONSTANT = 5.670374419 * 1e-8
 
 FLOAT64 = np.float64
-
-lg.basicConfig(level=lg.INFO)
 
 
 def mk_conduction_matrix(m_1: Material, m_2: Material) -> np.ndarray:  #pylint: disable=redefined-outer-name
