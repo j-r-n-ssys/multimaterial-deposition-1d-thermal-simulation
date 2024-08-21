@@ -235,4 +235,4 @@ def calc_interface_temp(e_1: float, t_1: float, e_2: float, t_2: float) -> float
 
 
 if __name__ == '__main__':
-    print(f'\nModule <{Path(__file__).name}> is not intended to be run as standalone module.')
+    print(f'\nModule {Path(__file__).name} is not intended to be run as standalone module.')

@@ -44,6 +44,6 @@ ch.setFormatter(formatter)
 logger.addHandler(ch)
 
 if __name__ == '__main__':
-    print(f'Module <{Path(__file__).name}> is not intended to be run as standalone module.')
+    print(f'Module {Path(__file__).name} is not intended to be run as standalone module.')
 
     logger.debug('a')

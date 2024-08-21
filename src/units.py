@@ -22,4 +22,4 @@ def inch_to_millimeter(f: float, n: int = 1) -> float:
 
 
 if __name__ == '__main__':
-    print(f'\nModule <{Path(__file__).name}> is not intended to be run as standalone module.')
+    print(f'\nModule {Path(__file__).name} is not intended to be run as standalone module.')
